@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digitalchina.xa.it.dao.TPaidlotteryInfoDAO" >
+	<sql id="BASE_TABLE">
+		t_paidlottery_info
+	</sql>
+
+	<sql id="BASE_COLUMN">
+		id,name,description,flag,typeCode,winCount,unitPrice,winSumAmount,winDate,winSumPerson,nowSumPerson,nowSumAmount,reward,winner,winTicket,limitEveryday,lotteryTime,backup1,backup2,backup3,backup4,backup5,backup6
+	</sql>
+	
+	<insert id="insertLotteryInfo" parameterType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+            select @@IDENTITY as id
+        </selectKey>
+		INSERT INTO
+			<include refid="BASE_TABLE"/>
+			<trim prefix="(" suffix=")" suffixOverrides=",">
+				name,description,flag,typeCode,winCount,unitPrice,winSumAmount,winDate,winSumPerson,nowSumPerson,nowSumAmount,reward,winner,winTicket,limitEveryday,lotteryTime,backup1,backup2,backup3,backup4,backup5,backup6
+			</trim>
+			<trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+				#{name, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{flag, jdbcType=INTEGER}, #{typeCode, jdbcType=INTEGER}, 
+				#{winCount, jdbcType=INTEGER}, #{unitPrice, jdbcType=INTEGER}, #{winSumAmount, jdbcType=INTEGER}, #{winDate, jdbcType=VARCHAR}, 
+				#{winSumPerson, jdbcType=INTEGER}, #{nowSumPerson, jdbcType=INTEGER}, #{nowSumAmount, jdbcType=INTEGER}, #{reward, jdbcType=VARCHAR}, 
+				#{winner, jdbcType=VARCHAR}, #{winTicket, jdbcType=VARCHAR}, #{limitEveryday, jdbcType=INTEGER}, #{lotteryTime, jdbcType=TIMESTAMP}, 
+				#{backup1, jdbcType=VARCHAR}, #{backup2, jdbcType=VARCHAR}, #{backup3, jdbcType=VARCHAR}, #{backup4, jdbcType=INTEGER}, 
+				#{backup5, jdbcType=INTEGER}, #{backup6, jdbcType=INTEGER} 
+			</trim>
+	</insert>
+	
+	<select id="selectLotteryInfoByFlag" resultType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			flag = #{flag,jdbcType=INTEGER}
+	</select>
+	
+	<select id="selectUnfinishedSZBLottery" resultType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			flag = 0
+		AND
+			typeCode = 1
+	</select>
+	
+	<select id="selectUnfinishedRMBLottery" resultType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			flag = 0
+		AND
+			typeCode = 0
+		AND
+			backup3 = ''
+	</select>
+	
+	<select id="selectLotteryInfoById" resultType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<select id="selectLotteryBylotteryId" resultType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			lotteryId = #{lotteryId,jdbcType=INTEGER}
+	</select>
+	
+	<select id="selectRunLottery" resultType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			flag = 0
+		AND
+			winSumAmount = nowSumAmount
+		AND
+			backup4 = 0
+	</select>
+	
+	<select id="selectUnfinishedLottery" resultType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			flag = 0
+	</select>
+	
+	<select id="selectLastRMBLottery" resultType="java.lang.Integer">
+		SELECT
+			MAX(id)
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			typeCode = 0
+		AND
+			backup3 = ''
+	</select>
+	
+	<select id="selectOneSmbTpid" resultType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			flag = 0
+		AND
+			typeCode = 1
+	</select>
+	
+	<select id="selectHbTpids" resultType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			flag = 0
+		AND
+			typeCode = 0
+		AND
+			lotteryTime &lt; now()
+	</select>
+	
+	<select id="selectOtherTpids" resultType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			flag = 0
+		AND
+			typeCode = 2
+	</select>
+	
+	<select id="selectNewOpen" resultType="com.digitalchina.xa.it.model.TPaidlotteryInfoDomain">
+		SELECT
+			id,name,description,winner,winTicket,lotteryTime,backup2,typeCode,backup3,backup1
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			flag = 1
+		ORDER BY
+			lotteryTime DESC
+		LIMIT  #{count}
+			
+	</select>
+	
+	<update id="updateLotteryReward">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			reward = #{reward,jdbcType=VARCHAR}
+		WHERE
+			id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateLotteryWinBlockHash">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			winDate = #{winBlockHash,jdbcType=VARCHAR}
+		WHERE
+			id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateNowSumAmountAndBackup4">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			nowSumAmount = nowSumAmount + unitPrice,
+			backup4 = backup4 + 1
+		WHERE
+			id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateNowSumAmountAndBackup4Sub">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			nowSumAmount = nowSumAmount - unitPrice * #{count,jdbcType=INTEGER},
+			backup4 = backup4 - #{count,jdbcType=INTEGER}
+		WHERE
+			id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateBackup4To0">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			backup4 = 0
+		WHERE
+			id = #{id, jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateAfterLotteryFinished">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET
+			flag = 1,    
+			lotteryTime = #{lotteryTime, jdbcType=TIMESTAMP},
+			winner = #{winner, jdbcType=VARCHAR},
+			winTicket = #{winTicket, jdbcType=VARCHAR},
+			backup6 = #{backup6, jdbcType=INTEGER}
+		WHERE
+			id = #{id, jdbcType=INTEGER}
+	</update>
+</mapper>
