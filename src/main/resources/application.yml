@@ -18,6 +18,7 @@ spring:
           driver-class-name: com.mysql.jdbc.Driver
           #基本属性
           url: jdbc:mysql://10.0.6.44:3306/dc_blockchain?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+          #url: jdbc:mysql://10.0.6.44:3306/dc_blockchain?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
           username: appuser
           password: 123456
           #配置初始化大小/最小/最大
