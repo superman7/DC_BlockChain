@@ -25,6 +25,7 @@
         <link rel="stylesheet" href="../css/bootstrapValidator.min.css" />
         <link rel="stylesheet" href="../css/aui_css/aui.css" />
         <link rel="stylesheet" type="text/css" href="../css/aui_css/aui-pull-refresh.css" />
+        <script type="text/javascript" src="js/cookie_util.js"></script>
         <script type='text/javascript' src='../js/jquery.textarea.autoheight.js'></script>
         <script type='text/javascript' src='../js/jquery.form.js'></script>
         <script type='text/javascript' src="../js/jquery-weui.js"></script>
@@ -61,7 +62,7 @@
 				}
 				if(ok){
 					$.ajax({
-						url:baseUrl+"login",
+						url:baseUrl+"ethAccount/login",
 						type:"post",
 						data:{"itcode":itcode,"u_pwd":u_pwd},
 						dataType:"json",

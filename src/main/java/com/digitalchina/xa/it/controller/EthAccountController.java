@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.digitalchina.xa.it.kafkaConsumer.KafkaUtil;
 import com.digitalchina.xa.it.model.KafkaConsumerBean;
+import com.digitalchina.xa.it.service.EthAccountService;
+import com.digitalchina.xa.it.util.ResultUtil;
 import com.digitalchina.xa.it.util.TConfigUtils;
 
 
@@ -24,6 +26,8 @@ public class EthAccountController {
    	private JdbcTemplate jdbc;
     @Autowired
     private KafkaUtil kafkaUtil;
+    @Autowired
+    private EthAccountService eth;
 
 	@ResponseBody
 	@PostMapping("/withdrawConfirm")
@@ -43,5 +47,13 @@ public class EthAccountController {
 		String password = TConfigUtils.selectValueByKey("default_password");
         KafkaConsumerBean kafkabean = new KafkaConsumerBean(transactionDetailId, defaultAcc, account, turnBalance.toBigInteger(), password, keystoreFile);
         kafkaUtil.sendMessage("withdrawconfirm", "WithdrawConfirm", kafkabean);
+	}
+	@ResponseBody
+	@RequestMapping("/login")
+	public ResultUtil login(
+			@RequestParam(name = "itcode",required = true) String itcode,
+			@RequestParam(name = "u_pwd", required = true) String u_pwd) {
+		ResultUtil result = eth.selectBackup1ByItcode(itcode, u_pwd);
+		return result;
 	}
 }
