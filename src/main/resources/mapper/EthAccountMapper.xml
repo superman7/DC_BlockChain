@@ -73,6 +73,14 @@
 		AND
 			available = 3
 	</select>
+	<select id="selectbackup1ByItcode" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+			backup1
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			itcode = #{itcode,jdbcType=VARCHAR}
+	</select>
   	
   	<insert id="insert" parameterType="com.digitalchina.xa.it.model.EthAccountDomain">
 		INSERT INTO
