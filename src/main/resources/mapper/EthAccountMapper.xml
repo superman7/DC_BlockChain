@@ -73,7 +73,7 @@
 		AND
 			available = 3
 	</select>
-	<select id="selectbackup1ByItcode" parameterType="java.lang.String" resultType="java.lang.String">
+	<select id="selectBackup1ByItcode" parameterType="java.lang.String" resultType="java.lang.String">
 		SELECT
 			backup1
 		FROM
