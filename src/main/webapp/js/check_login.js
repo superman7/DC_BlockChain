@@ -5,6 +5,6 @@ $(function(){
 	//判断cookie是否为空
 	//为空则跳转到登录页面
 	if(itcode == "" ||itcode == null){
-		window.location.href = "login.jsp";
+		window.location.href = "/login.jsp";
 	}
 });
