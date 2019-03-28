@@ -1,9 +1,12 @@
+<%@page import="java.net.URLEncoder"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ page import="weaver.conn.RecordSet"%>
 <%@ page import="weaver.general.BaseBean"%>
 <%@ page import="weaver.file.FileUpload"%>
 <%@ page import="weaver.hrm.*" %>
 <%@ page import="weaver.general.*" %>
+<%@ page import="com.digitalchina.xa.it.util.Encrypt" %>
+<%@ page import="com.digitalchina.xa.it.util.EncryptImpl" %>
 
 <!DOCTYPE html>
 <html>
@@ -32,6 +35,7 @@
         <script type='text/javascript' src='../js/check_login.js'></script>
 		<script type="text/javascript" src='../js/cookie_util.js'></script>
         <script type="text/javascript">
+        /* 生成密语 */
         $(function() {
         	var itcode = getCookie("itcode");
             alert("请保存好您的密语与密语密码，我们不会为您保存，如果丢失没有办法为您恢复");
@@ -46,7 +50,7 @@
                     }
                 }
             });
-
+			/* 重选密语 */
             $("#btnRefresh").click(function() {
                 $.ajax({
                     type: "GET",
@@ -66,27 +70,32 @@
             $("#btnOk").click(function() {
                 var mnemonic = $("#taMnemonic").val();
                 var mnePassword = $("#txtPassword").val();
-                var param = JSON.stringify({
+                /* var param = JSON.stringify({
                         "mnemonic":mnemonic,
                         "mnePassword":mnePassword,
                         "itcode":itcode
-                    });
+                    }); */
+               
                 if(confirm("再次提醒您保存好密语与密语密码，丢失后无法恢复") == true){
                     $.ajax({
                         type: "GET",
-                        url: "/mobile/plugin/dch/smb/wallet/getNewAccount.jsp",
-                        data: {jsonStr:param},
+                        url: "/ethAccount/newAddress",
+                        data: {
+                        	"mnemonic":mnemonic,
+                            "mnePassword":mnePassword,
+                            "itcode":itcode
+                            },
                         dataType: "json",
                         success: function(data) {
                             if (data.success) {
                                 var address = data.address;
                                 var mnemonic = data.mnemonic;
                                 var mnePassword = data.mnePassword;
-                                window.location.href="/mobile/plugin/dch/smb/wallet/newAccount.jsp"
-                                    +"?address=" + address + "&mnemonic=" + mnemonic + "&mnePassword=" + mnePassword + "&itcode=" + itcode;
+                                window.location.href="/wallet/newAccount.jsp"
+                                     +"?address=" + address + "&mnemonic=" + mnemonic + "&mnePassword=" + mnePassword + "&itcode=" + itcode;
                             } else {
                                 alert("您的账户数量与今日注册次数已累计达到10次，请明日再试！");
-                                window.location.href = "/mobile/plugin/dch/smb/wallet/amBase.jsp?itcode="+itcode;
+                                window.location.href = "/wallet/amBase.jsp";
                             }
                         }
                     });
