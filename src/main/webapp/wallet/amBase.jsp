@@ -40,28 +40,28 @@
         	<%-- var itcode = '<%=it_code1 %>'; --%>
         	/* $(function(){
         		//获取用户登录后保存的cookie值
-        		/* var itcode = getCookie("itcode"); */
+        		var itcode = getCookie("itcode"); 
         		alert(itcode);
         		});  */
         	$(function() {
                 $("#btnNew").click(function() {
-                    window.location.href="wallet/mnemonic.jsp";
+                    window.location.href="/wallet/mnemonic.jsp";
                 });
 
                 $("#btnCharge").click(function() {
-                    window.location.href="wallet/chargeToDefault.jsp";
+                    window.location.href="/wallet/chargeToDefault.jsp";
                 });
 
                 $("#btnWithdraw").click(function() {
-                    window.location.href="wallet/withdrawToAccount.jsp";
+                    window.location.href="/wallet/withdrawToAccount.jsp";
                 });
 
                 $("#btnManage").click(function() {
-                    window.location.href="wallet/accManager.jsp";
+                    window.location.href="/wallet/accManager.jsp";
                 });
                 
                 $("#btnRecords").click(function() {
-                    window.location.href="wallet/transRecords.jsp";
+                    window.location.href="/wallet/transRecords.jsp";
                 });
             });
         </script>

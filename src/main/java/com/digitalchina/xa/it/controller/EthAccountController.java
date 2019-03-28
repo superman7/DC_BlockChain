@@ -1,12 +1,14 @@
 package com.digitalchina.xa.it.controller;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.digitalchina.xa.it.kafkaConsumer.KafkaUtil;
 import com.digitalchina.xa.it.model.KafkaConsumerBean;
 import com.digitalchina.xa.it.service.EthAccountService;
+import com.digitalchina.xa.it.service.MnemonicService;
 import com.digitalchina.xa.it.util.ResultUtil;
 import com.digitalchina.xa.it.util.TConfigUtils;
 
@@ -28,6 +31,8 @@ public class EthAccountController {
     private KafkaUtil kafkaUtil;
     @Autowired
     private EthAccountService eth;
+    @Autowired
+	private MnemonicService mnemonicService;
 
 	@ResponseBody
 	@PostMapping("/withdrawConfirm")
@@ -56,4 +61,21 @@ public class EthAccountController {
 		ResultUtil result = eth.selectBackup1ByItcode(itcode, u_pwd);
 		return result;
 	}
+//	重选密语请求，返回新生成的密语
+	/**
+	 * @apiDefine 生成密语 [title]
+    *            [生成密语传到前台]
+	 * @return
+	 */
+	@ResponseBody
+	@GetMapping("/refreshMnemonic")
+	public Map<String, Object> refreshMnemonic() {
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		String mnemonicSentence = mnemonicService.chooseMnemonic();
+		modelMap.put("success", true);
+		modelMap.put("mnemonic", mnemonicSentence);
+		
+		return modelMap;
+	}
+	
 }
