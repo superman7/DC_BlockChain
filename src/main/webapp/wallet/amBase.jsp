@@ -22,7 +22,6 @@
         <title>测试钱包页面</title>
         <link rel="stylesheet" href="../css/trav.css"/>
         <link rel="stylesheet" href="../css/bootstrap.min.css" type="text/css" />
-        <script type="text/javascript" src='../js/cookie_util.js'></script>
         <script src="../js/jquery-1.11.3.min.js" type="text/javascript"></script>
         <script src="../js/bootstrap.min.js" type="text/javascript"></script>
         <link rel="stylesheet" href="../css/weui.min.css" />
@@ -35,33 +34,34 @@
         <script type='text/javascript' src='../js/fastclick.min.js'></script>
         <script type='text/javascript' src='../js/web3.min.js'></script>
         <script type='text/javascript' src='../js/bignumber.js'></script>
-
+		<script type='text/javascript' src='../js/check_login.js'></script>
+		<script type="text/javascript" src='../js/cookie_util.js'></script>
         <script type="text/javascript">
         	<%-- var itcode = '<%=it_code1 %>'; --%>
-        	$(function(){
+        	/* $(function(){
         		//获取用户登录后保存的cookie值
-        		var itcode = getCookie("itcode");
+        		/* var itcode = getCookie("itcode"); */
         		alert(itcode);
-        		});
+        		});  */
         	$(function() {
                 $("#btnNew").click(function() {
-                    window.location.href="wallet/mnemonic.jsp?itcode="+itcode;
+                    window.location.href="wallet/mnemonic.jsp";
                 });
 
                 $("#btnCharge").click(function() {
-                    window.location.href="wallet/chargeToDefault.jsp?itcode="+itcode;
+                    window.location.href="wallet/chargeToDefault.jsp";
                 });
 
                 $("#btnWithdraw").click(function() {
-                    window.location.href="wallet/withdrawToAccount.jsp?itcode="+itcode;
+                    window.location.href="wallet/withdrawToAccount.jsp";
                 });
 
                 $("#btnManage").click(function() {
-                    window.location.href="wallet/accManager.jsp?itcode="+itcode;
+                    window.location.href="wallet/accManager.jsp";
                 });
                 
                 $("#btnRecords").click(function() {
-                    window.location.href="wallet/transRecords.jsp?itcode="+itcode;
+                    window.location.href="wallet/transRecords.jsp";
                 });
             });
         </script>
