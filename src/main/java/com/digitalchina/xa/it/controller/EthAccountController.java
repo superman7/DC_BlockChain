@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.web3j.crypto.CipherException;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
+import org.web3j.crypto.Wallet;
+import org.web3j.crypto.WalletFile;
 
 import com.alibaba.fastjson.JSONObject;
 import com.digitalchina.xa.it.kafkaConsumer.KafkaUtil;
@@ -195,6 +198,40 @@ public class EthAccountController {
 			}
 		}
 		modelMap.put("valid", true);
+		
+		return modelMap;
+	}
+//	创建账户请求
+	/**
+	 * @apiDescription 创建账户请求
+	 * @param jsonValue
+	 * @return
+	 */
+	@ResponseBody
+	@GetMapping("/newAccount")
+	public Map<String, Object> newAccount(@RequestParam(name = "param", required = true) String param) {
+		String pString = param.trim();
+		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(pString);
+		if(!(boolean) modelMap.get("success")){
+			return modelMap;
+		}
+		//获取前端发送的密语，密语密码，地址名和交易密码
+		JSONObject allInfoSentenceJson = JSONObject.parseObject((String) modelMap.get("data"));
+		String mnemonic = allInfoSentenceJson.getString("mnemonic");
+		String mnePassword = allInfoSentenceJson.getString("mnePassword");
+		String alias = allInfoSentenceJson.getString("alias");
+		String traPassword = allInfoSentenceJson.getString("traPassword");
+		ECKeyPair ecKeyPair = getECKeyPair(mnemonic, mnePassword);
+		String address = "0x" + Keys.getAddress(ecKeyPair);
+		
+		//生成WalletFile(keystore)，更新数据库，根据address存入keystore和alias
+		try {
+			WalletFile walletFile = Wallet.createLight(traPassword, ecKeyPair);
+			String keystore = ((JSONObject) JSONObject.toJSON(walletFile)).toJSONString();
+			ethAccountService.updateKeystoreAndAlias(keystore, alias, address, 1);
+		} catch (CipherException e) {
+			e.printStackTrace();
+		}
 		
 		return modelMap;
 	}

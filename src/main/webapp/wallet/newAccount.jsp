@@ -10,10 +10,10 @@
     String mnePassword = Util.null2String((String) fu4.getParameter("mnePassword"));
  %>  --%>
   <%
- String it_code1 = request.getParameter("itcode");
  String address = request.getParameter("address");
- String mnemonic = request.getParameter("mneonic");
- String mnePassword = request.getParameter("mnPassword");
+ String it_code = request.getParameter("itcode");
+ String mnemonic = request.getParameter("mnemonic");
+ String mnePassword = request.getParameter("mnePassword");
  %> 
 <!DOCTYPE html>
 <html>
@@ -45,11 +45,9 @@
         <script type="text/javascript">
             $(function() {
                 var address = '<%=address %>';
-                var itcode = '<%=it_code1 %>';
+                var itcode = '<%=it_code %>';
                 var mnemonic = '<%=mnemonic %>';
                 var mnePassword = '<%=mnePassword %>';
-                alert(address);
-
                 $('#defaultForm').bootstrapValidator({
                     message: 'This value is not valid',
                     feedbackIcons: {
@@ -150,7 +148,7 @@
                                 	alert("error"+data);
                                 },
                                 success: function(data) {
-                                	alert(data);
+                                	/* alert(data); */
                                 	$.ajax({
                                 		type:"GET",
                                 		url:"/ethAccount/checkUp",
@@ -160,24 +158,33 @@
                                 			if (data.valid) {
                                                 $.ajax({
                                                     type: "GET",
-                                                    url: "/wallet/getRegisiter.jsp",
+                                                    url: "/wallet/getCheckUp.jsp",
                                                     data: {"jsonStr":JSON.stringify({
                                                         "alias": alias,
                                                         "traPassword": traPassword,
                                                         "mnemonic": mnemonic,
                                                         "mnePassword": mnePassword
                                                     })},
-                                                    dataType: "json",
+                                                    dataType: "text",
                                                     success: function(data) {
-                                                        if (data.success) {
-                                                            alert("新账户创建成功");
-                                                        } else {
-                                                            alert(JSON.stringify(data));
-                                                            alert("注册失败，请稍后再试");
-                                                        }
-                                                        window.location.href = "/mobile/plugin/dch/smb/wallet/accManager.jsp?itcode="+itcode;
+                                                    	$.ajax({
+                                                    		type:"GET",
+                                                    		url:"/ethAccount/newAccount",
+                                                    		data:{"param":data},
+                                                    		dataType:"json",
+                                                    		success:function(data){
+                                                    			 if (data.success) {
+                                                                     alert("新账户创建成功");
+                                                                 } else {
+                                                                     alert(JSON.stringify(data));
+                                                                     alert("注册失败，请稍后再试");
+                                                                 }
+                                                    			 alert("哈哈哈哈哈哈");
+                                                                 window.location.href = "/wallet/accManager.jsp?itcode="+itcode;
+                                                             }
+                                              	      	});
                                                     }
-                                                });
+                                                })
                                             } else {
                                                 alert("账户名已存在");
                                             }

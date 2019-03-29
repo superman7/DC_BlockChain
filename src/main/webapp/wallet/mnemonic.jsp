@@ -92,7 +92,7 @@
                                 var mnemonic = data.mnemonic;
                                 var mnePassword = data.mnePassword;
                                 window.location.href="/wallet/newAccount.jsp"
-                                     +"?address=" + address + "&mnemonic=" + mnemonic + "&mnePassword=" + mnePassword + "&itcode=" + itcode;
+                                     +"?mnemonic=" + mnemonic +"&"+"address=" + address + "&mnePassword=" + mnePassword + "&itcode=" + itcode;
                             } else {
                                 alert("您的账户数量与今日注册次数已累计达到10次，请明日再试！");
                                 window.location.href = "/wallet/amBase.jsp";
