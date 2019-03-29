@@ -232,19 +232,20 @@ public class EthAccountServiceImpl implements EthAccountService {
 	@Override
 	public ResultUtil selectBackup1ByBackup2(String username,String pwd) {
 		ResultUtil result = new ResultUtil();
-		String backup1 = ethAccountDAO.selectBackup1ByBackup2(username);
-		if (backup1 == null) {
+		EthAccountDomain eth = ethAccountDAO.selectBackup1ByBackup2(username);
+		if (eth.getBackup1() == null) {
 			result.setStatus(1);
 			result.setMsg("输入账号不存在请注册");
 			return result;
 		}
 
-		if (!(backup1.equals(pwd))) {
+		if (!(eth.getBackup1().equals(pwd))) {
 			result.setStatus(2);
 			result.setMsg("密码错误");
 			return result;
 		}
 		result.setStatus(0);
+		result.setData(eth.getItcode());
 		return result;
 	}
 }

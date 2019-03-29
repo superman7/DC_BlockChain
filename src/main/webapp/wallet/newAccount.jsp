@@ -179,8 +179,8 @@
                                                                      alert(JSON.stringify(data));
                                                                      alert("注册失败，请稍后再试");
                                                                  }
-                                                    			 alert("哈哈哈哈哈哈");
-                                                                 window.location.href = "/wallet/accManager.jsp?itcode="+itcode;
+                                                    			 /* alert("哈哈哈哈哈哈"); */
+                                                                 window.location.href = "/wallet/accManager.jsp";
                                                              }
                                               	      	});
                                                     }
