@@ -65,6 +65,7 @@ public class EthAccountController {
 			@RequestParam(name = "itcode",required = true) String itcode,
 			@RequestParam(name = "u_pwd", required = true) String u_pwd) {
 		ResultUtil result = ethAccountService.selectBackup1ByItcode(itcode, u_pwd);
+//		System.out.println(result.getStatus());
 		return result;
 	}
 //	重选密语请求，返回新生成的密语
@@ -168,6 +169,35 @@ public class EthAccountController {
         
         return null;
   }
+	
+	/**
+	 * @apiDescription 检测地址是否重复
+	 * @param jsonValue
+	 * @return
+	 */
+	@ResponseBody
+	@GetMapping("/checkUp")
+	public Map<String, Object> checkUp(@RequestParam(name = "param", required = true) String param) {
+		String pString = param.trim();
+		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(pString);
+		if(!(boolean) modelMap.get("success")){
+			return modelMap;
+		}
+		JSONObject aliasInfoJson = JSONObject.parseObject((String) modelMap.get("data"));
+		String itcode = aliasInfoJson.getString("itcode");
+		String alias = aliasInfoJson.getString("alias");
+		
+		List<EthAccountDomain> accountList = ethAccountService.selectEthAccountByItcode(itcode);
+		for(int index = 0; index < accountList.size(); index++) {
+			if(accountList.get(index).getAlias().equals(alias)) {
+				modelMap.put("valid", false);
+				return modelMap;
+			}
+		}
+		modelMap.put("valid", true);
+		
+		return modelMap;
+	}
 	
 	
 }

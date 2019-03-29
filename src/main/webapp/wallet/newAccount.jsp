@@ -138,40 +138,51 @@
                         if(confirm("请保存好您的密码，我们不会为您保存，一旦丢失资产将无法恢复") == true){
                             var alias = $("#txtName").val();
                             var traPassword = $("#txtPassword").val();
-
                             $.ajax({
                                 type: "GET",
-                                url: "/mobile/plugin/dch/smb/wallet/getCheckUp.jsp",
+                                url: "/wallet/getCheckUp.jsp",
                                 data: {"jsonStr":JSON.stringify({
                                     "alias": alias,
                                     "itcode": itcode
                                 })},
-                                dataType: "json",
+                                dataType: "text",
+                                error:function(){
+                                	alert("error"+data);
+                                },
                                 success: function(data) {
-                                    if (data.valid) {
-                                        $.ajax({
-                                            type: "GET",
-                                            url: "/mobile/plugin/dch/smb/wallet/getRegisiter.jsp",
-                                            data: {"jsonStr":JSON.stringify({
-                                                "alias": alias,
-                                                "traPassword": traPassword,
-                                                "mnemonic": mnemonic,
-                                                "mnePassword": mnePassword
-                                            })},
-                                            dataType: "json",
-                                            success: function(data) {
-                                                if (data.success) {
-                                                    alert("新账户创建成功");
-                                                } else {
-                                                    alert(JSON.stringify(data));
-                                                    alert("注册失败，请稍后再试");
-                                                }
-                                                window.location.href = "/mobile/plugin/dch/smb/wallet/accManager.jsp?itcode="+itcode;
+                                	alert(data);
+                                	$.ajax({
+                                		type:"GET",
+                                		url:"/ethAccount/checkUp",
+                                		data:{"param":data},
+                                		dataType:"json",
+                                		success:function(data){
+                                			if (data.valid) {
+                                                $.ajax({
+                                                    type: "GET",
+                                                    url: "/wallet/getRegisiter.jsp",
+                                                    data: {"jsonStr":JSON.stringify({
+                                                        "alias": alias,
+                                                        "traPassword": traPassword,
+                                                        "mnemonic": mnemonic,
+                                                        "mnePassword": mnePassword
+                                                    })},
+                                                    dataType: "json",
+                                                    success: function(data) {
+                                                        if (data.success) {
+                                                            alert("新账户创建成功");
+                                                        } else {
+                                                            alert(JSON.stringify(data));
+                                                            alert("注册失败，请稍后再试");
+                                                        }
+                                                        window.location.href = "/mobile/plugin/dch/smb/wallet/accManager.jsp?itcode="+itcode;
+                                                    }
+                                                });
+                                            } else {
+                                                alert("账户名已存在");
                                             }
-                                        });
-                                    } else {
-                                        alert("账户名已存在");
-                                    }
+                                		}
+                                	});
                                 }
                             });
                         }
