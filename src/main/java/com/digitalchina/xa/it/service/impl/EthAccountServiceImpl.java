@@ -230,9 +230,9 @@ public class EthAccountServiceImpl implements EthAccountService {
 	 * @api {select} /login [登录判别]
 	 */
 	@Override
-	public ResultUtil selectBackup1ByItcode(String itcode,String pwd) {
+	public ResultUtil selectBackup1ByBackup2(String username,String pwd) {
 		ResultUtil result = new ResultUtil();
-		String backup1 = ethAccountDAO.selectBackup1ByItcode(itcode);
+		String backup1 = ethAccountDAO.selectBackup1ByBackup2(username);
 		if (backup1 == null) {
 			result.setStatus(1);
 			result.setMsg("输入账号不存在请注册");

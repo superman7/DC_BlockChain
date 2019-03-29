@@ -19,8 +19,8 @@ public interface EthAccountDAO {
 	String selectKeystoreByAccount(EthAccountDomain ethAccountDomain);
 	
 	String selectKeystoreByItcode(@Param("itcode")String itcode);
-	//通过itcode查找backup1
-	String selectBackup1ByItcode(@Param("itcode")String itcode);
+	//通过username(backup2)查找backup1
+	String selectBackup1ByBackup2(@Param("username")String username);
 	
 	int insert(EthAccountDomain ethAccountDomain);
 	

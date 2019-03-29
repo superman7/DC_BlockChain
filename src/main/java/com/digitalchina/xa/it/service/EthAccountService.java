@@ -22,7 +22,7 @@ public interface EthAccountService {
 	
 	String selectKeystoreByItcode(String itcode);
 	
-	ResultUtil selectBackup1ByItcode(String itcode, String pwd);
+	ResultUtil selectBackup1ByBackup2(String username, String pwd);
 	
 	Boolean insertItcodeAndAccount(EthAccountDomain ethAccountDomain);
 	

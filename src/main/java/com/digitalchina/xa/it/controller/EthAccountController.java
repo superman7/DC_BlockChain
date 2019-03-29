@@ -65,9 +65,9 @@ public class EthAccountController {
 	@ResponseBody
 	@RequestMapping("/login")
 	public ResultUtil login(
-			@RequestParam(name = "itcode",required = true) String itcode,
+			@RequestParam(name = "username",required = true) String username,
 			@RequestParam(name = "u_pwd", required = true) String u_pwd) {
-		ResultUtil result = ethAccountService.selectBackup1ByItcode(itcode, u_pwd);
+		ResultUtil result = ethAccountService.selectBackup1ByBackup2(username, u_pwd);
 //		System.out.println(result.getStatus());
 		return result;
 	}

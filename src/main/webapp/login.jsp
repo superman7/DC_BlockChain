@@ -46,15 +46,15 @@
 			});
 			function checkLogin(){
 			//	获取参数
-				var itcode = $("#itcode").val();
+				var username = $("#username").val();
 				var u_pwd = $("#u_pwd").val().trim();
-				$("#itcode_msg").html("");
+				$("#username_msg").html("");
 				$("#pwd_msg").html("");
 			//	检查格式
 				ok = true;
-				if(itcode == ""){
+				if(username == ""){
 					ok = false;
-					$("#itcode_msg").html("账号不能为空");
+					$("#username_msg").html("账号不能为空");
 				}
 				if(u_pwd == ""){
 					ok = false;
@@ -64,16 +64,16 @@
 					$.ajax({
 						url:baseUrl+"ethAccount/login",
 						type:"post",
-						data:{"itcode":itcode,"u_pwd":u_pwd},
+						data:{"username":username,"u_pwd":u_pwd},
 						dataType:"json",
 						success:function(result){
 							var s = result.data;
 							if(result.status == 0){
-								addCookie("itcode",itcode,2);
+								addCookie("username",username,2);
 								addCookie("u_pwd",u_pwd,2);
 								window.location.href = "index.jsp";
 							}else if(result.status==1){
-								$("#itcode_msg").html(result.msg);
+								$("#username_msg").html(result.msg);
 							}else if(result.status==2){
 								$("#pwd_msg").html(result.msg);
 							}
@@ -87,11 +87,11 @@
 			</script>
 </head>
 <body>
-					 <h1 align="center">登录</h1>
+					 <h1 align="center"class=" aui-text-info">登录</h1>
                     <form >
-                        <input type="text" id="itcode" placeholder="请输入账号"><span id="itcode_msg"></span>
-                        <input type="text" id="u_pwd" placeholder="请输入密码"><span id="pwd_msg"></span>
-                        <div align="center"><button type="button" id="login_btn">登录</button></div>
+                        <input type="text" id="username" class="aui-input" placeholder="请输入账号"><span id="username_msg"></span>
+                        <input type="text" id="u_pwd" class="aui-input" placeholder="请输入密码"><span id="pwd_msg"></span>
+                        <div align="center" ><button type="button" id="login_btn" class="aui-text-info " >登录</button></div>
                     </form>
 </body>
 </html>
