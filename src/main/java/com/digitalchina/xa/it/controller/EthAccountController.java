@@ -1,5 +1,7 @@
 package com.digitalchina.xa.it.controller;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+
 import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.util.HashMap;
@@ -9,6 +11,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -236,5 +239,51 @@ public class EthAccountController {
 		return modelMap;
 	}
 	
+//	获取keystore
+	/**
+	 * @apiDescription 获取keystore
+	 * @param jsonValue
+	 * @return
+	 */
+	@ResponseBody
+	@GetMapping("/getKeystore")
+	public Map<String, Object> getKeystore(
+			@RequestParam(name = "param", required = true) String param) {
+		String pString = param.trim();
+		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(pString);
+		if(!(boolean) modelMap.get("success")){
+			return modelMap;
+		}
+		JSONObject accountJson = JSONObject.parseObject((String) modelMap.get("data"));
+		String account = accountJson.getString("account");
+		EthAccountDomain ethAccountDomain = new EthAccountDomain();
+		ethAccountDomain.setAccount(account);
+		String keystore = ethAccountService.selectKeystoreByAccount(ethAccountDomain);
+		System.out.println(keystore);
+		modelMap.put("keystore", keystore);
+		
+		return modelMap;
+	}
+	@ResponseBody
+	@GetMapping("/accountList")
+	@Transactional
+	public Map<String, Object> accountList(
+            @RequestParam(name = "param", required = true) String param) {
+		String jsonValue = param.trim();
+		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
+		if(!(boolean) modelMap.get("success")){
+			return modelMap;
+		}
+		JSONObject mnemonicJson = JSONObject.parseObject((String) modelMap.get("data"));
+		String itcode = mnemonicJson.getString("itcode");
+		ethAccountService.refreshBalance(itcode);
+//		System.out.println("eeeeeeeeeeeeeeeeeee");
+		modelMap.put("success", true);
+//		System.out.println(modelMap.get("success"));
+		List<EthAccountDomain> accountList = ethAccountService.selectEthAccountByItcode(itcode);
+		modelMap.put("accountList", accountList);
+//		System.out.println("123123"+modelMap.get("success"));
+		return modelMap;
+	}
 	
 }
