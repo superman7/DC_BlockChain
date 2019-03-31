@@ -286,7 +286,7 @@
 		                                return;
 		                            }
 		                            alert("充值成功，请稍后在我的账户查看");
-		                            window.location.href = "/mobile/plugin/dch/smb/wallet/accManager.jsp?itcode="+itcode;
+		                            window.location.href = "/wallet/accManager.jsp";
 		                        }
 		                    });
                         }

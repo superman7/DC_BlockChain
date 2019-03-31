@@ -41,7 +41,8 @@
         <script type='text/javascript' src='../js/web3.min.js'></script>
         <script type='text/javascript' src='../js/bignumber.js'></script>
         <script type='text/javascript' src='../js/bootstrapValidator.min.js'></script>
-
+		<script type='text/javascript' src='../js/check_login.js'></script>
+		<script type="text/javascript" src='../js/cookie_util.js'></script>
         <script type="text/javascript">
             $(function() {
                 var address = '<%=address %>';

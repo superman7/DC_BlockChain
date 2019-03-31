@@ -38,6 +38,7 @@
         <script type="text/javascript" src="../js/aui_script/aui-pull-refresh.js"></script>
         <script type="text/javascript" src="../js/aui_script/aui-toast.js" ></script>
         <script type="text/javascript" src="../js/aui_script/aui-dialog.js" ></script>
+		<script type="text/javascript" src='../js/cookie_util.js'></script>
 			<script type="text/javascript">
 			var baseUrl = '/';
 			$(function(){
