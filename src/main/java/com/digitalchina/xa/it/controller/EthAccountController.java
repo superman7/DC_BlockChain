@@ -1,9 +1,18 @@
 package com.digitalchina.xa.it.controller;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URLDecoder;
 import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,20 +27,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.web3j.crypto.CipherException;
+import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
+import org.web3j.crypto.RawTransaction;
+import org.web3j.crypto.TransactionEncoder;
 import org.web3j.crypto.Wallet;
 import org.web3j.crypto.WalletFile;
+import org.web3j.crypto.WalletUtils;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.utils.Numeric;
 
 import com.alibaba.fastjson.JSONObject;
 import com.digitalchina.xa.it.kafkaConsumer.KafkaUtil;
 import com.digitalchina.xa.it.model.EthAccountDomain;
 import com.digitalchina.xa.it.model.KafkaConsumerBean;
+import com.digitalchina.xa.it.model.WalletTransactionDomain;
 import com.digitalchina.xa.it.service.EthAccountService;
 import com.digitalchina.xa.it.service.MnemonicService;
+import com.digitalchina.xa.it.service.WalletTransactionService;
 import com.digitalchina.xa.it.util.DecryptAndDecodeUtils;
+import com.digitalchina.xa.it.util.Encrypt;
+import com.digitalchina.xa.it.util.EncryptImpl;
 import com.digitalchina.xa.it.util.ResultUtil;
 import com.digitalchina.xa.it.util.TConfigUtils;
+
+import scala.util.Random;
 
 
 @Controller
@@ -45,6 +69,13 @@ public class EthAccountController {
     private EthAccountService ethAccountService;
     @Autowired
 	private MnemonicService mnemonicService;
+    @Autowired
+	private WalletTransactionService walletTransactionService;
+    
+    private static String keystoreName = "keystore.json";
+	private static final BigInteger tax = BigInteger.valueOf(5000000000000000L);
+	private static String address = "0x024a3c0d945739237eedf78c80c6ae5daf22c010";
+	private static String tempFilePath = "/eth/javaServer/wallet/temp/";
 
 	@ResponseBody
 	@PostMapping("/withdrawConfirm")
@@ -264,6 +295,13 @@ public class EthAccountController {
 		
 		return modelMap;
 	}
+	
+	//查询所有账户
+	/**
+	 * @apiDescription 根据itcode获取账户列表
+	 * @param param
+	 * @return
+	 */
 	@ResponseBody
 	@GetMapping("/accountList")
 	@Transactional
@@ -285,5 +323,252 @@ public class EthAccountController {
 //		System.out.println("123123"+modelMap.get("success"));
 		return modelMap;
 	}
+	
+//	确认充值请求，提交账户地址（FROM），密码，金额，钱包地址（TO）
+	/**
+	 * @apiDescription 确认账户请求,提交账户地址,密码,金额,钱包地址
+	 * @param jsonValue
+	 * @return
+	 */
+	@ResponseBody
+	@GetMapping("/chargeConfirm")
+	public Map<String, Object> chargeConfirm(
+			@RequestParam(name = "param", required = true) String jsonValue) {
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		System.out.println(jsonValue);
+		Encrypt encrypt = new EncryptImpl();
+    	String decrypt = null;
+		try {
+			decrypt = encrypt.decrypt(jsonValue);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			modelMap.put("success", false);
+			modelMap.put("errMsg", "解密失败！");
+			return modelMap;
+		}
+    	String data = null;
+		try {
+			data = URLDecoder.decode(decrypt, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			modelMap.put("success", false);
+			modelMap.put("errMsg", "解密失败！非utf-8编码。");
+			return modelMap;
+		}
+    	System.err.println("解密的助记词，密码及itcode的JSON为:" + data);
+    	
+    	JSONObject chargeJson = JSONObject.parseObject(data);
+		String account = chargeJson.getString("account");
+		String password = chargeJson.getString("password");
+		String defaultAcc = chargeJson.getString("defaultAcc");
+		String itcode = chargeJson.getString("itcode");
+		String alias = chargeJson.getString("alias");
+		
+		Double money = (Double.parseDouble(chargeJson.getString("money")))*10000000000000000L;
+		BigDecimal moneyBigDecimal = new BigDecimal(money);// 转账金额
+		EthAccountDomain ethAccountDomain = new EthAccountDomain();
+		ethAccountDomain.setAccount(account);
+		String keystore = ethAccountService.selectKeystoreByAccount(ethAccountDomain);
+		System.out.println(keystore);
+		try {
+			List<Web3j> web3jList = new ArrayList<>();
+			List<String> ipArr = TConfigUtils.selectIpArr();
+			for(int i = 0; i < ipArr.size(); i++) {
+				web3jList.add(Web3j.build(new HttpService(ipArr.get(i))));
+			}
+			File keystoreFile = keystoreToFile(keystore, account + ".json");
+			System.out.println("开始解锁。。。");
+			Credentials credentials = WalletUtils.loadCredentials(password, keystoreFile);
+			System.out.println("解锁成功。。。");
+			keystoreFile.delete();
+			System.out.println("删除临时keystore文件成功。。。");
+			
+			EthGetTransactionCount ethGetTransactionCount = web3jList.get(new Random().nextInt(5)).ethGetTransactionCount(account, DefaultBlockParameterName.LATEST).sendAsync().get();
+			BigInteger nonce = ethGetTransactionCount.getTransactionCount();
+			System.err.println("nonce:" + nonce);
+			RawTransaction rawTransaction = RawTransaction.createEtherTransaction(nonce, BigInteger.valueOf(2200000000L), BigInteger.valueOf(2100000L), defaultAcc, moneyBigDecimal.toBigInteger());
+			//签名Transaction，这里要对交易做签名
+			byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
+			String hexValue = Numeric.toHexString(signedMessage);
+			System.err.println("hexValue:" + hexValue);
+			//发送交易
+			String transactionHash = "";
+			String realTransactionHash = "";
+			for(int i = 0; i < web3jList.size(); i++) {
+				transactionHash = web3jList.get(i).ethSendRawTransaction(hexValue).sendAsync().get().getTransactionHash();
+				if(transactionHash != null) {
+					realTransactionHash = transactionHash;
+				}
+			}
+			
+			WalletTransactionDomain wtd = new WalletTransactionDomain();
+			wtd.setItcode(itcode);
+			wtd.setAccountFrom(account);
+			wtd.setAccountTo(defaultAcc);
+			wtd.setAliasFrom(alias);
+			wtd.setAliasTo("默认账户");
+			wtd.setBalance(money);
+			wtd.setTransactionHash(realTransactionHash);
+			wtd.setConfirmTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+			walletTransactionService.insertBaseInfo(wtd);
+			
+			modelMap.put("success", true);
+			modelMap.put("transactionHash", transactionHash);
+		} catch (Exception e) {
+			System.out.println("解锁失败。。。");
+			e.printStackTrace();
+			if(e.getMessage().contains("Invalid password provided")) {
+				modelMap.put("success", false);
+				modelMap.put("errMsg", "invalidPassword");
+				return modelMap;
+			}
+		}
+    	
+		return modelMap;
+	}
+	
+//	将keystore写入文件中
+	/**
+	 * @apiDescription 将keystore写入文件中
+	 * @param keystore
+	 * @param keystoreName
+	 * @return
+	 * @throws IOException
+	 */
+	private File keystoreToFile(String keystore, String keystoreName) throws IOException {
+		File file = new File(tempFilePath + keystoreName);
+        if(!file.exists()){
+         file.createNewFile();
+        }
+        FileWriter fw = new FileWriter(file.getAbsoluteFile());
+        BufferedWriter bw = new BufferedWriter(fw);
+        bw.write(keystore);
+        bw.close();
+        System.out.println("创建keystore。。。");
+        
+        return file;
+	}
+	
+	/** @api {get} /ethAccount/balanceQuery/:account 查询输入充值账户的余额
+	* @apiVersion 0.1.0 
+	* @apiGroup Wallet 
+	* @apiParam {String} account 账户地址,格式为"yyyy-MM-dd". @apiParam {String} accountkey 账户,神州区块链账户地址.
+	* @apiSuccess {String} do/did do,该账户今日未签到;did,该账户今日已签到.
+	* @apiSuccessExample Success-Response: HTTP/1.1 200 OK
+	* do */
+//	查询输入充值账户的余额
+	@ResponseBody
+	@GetMapping("/balanceQuery")
+	public Map<String, Object> balanceQuery(
+			@RequestParam(name = "param", required = true) String jsonValue) {
+		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
+		Web3j web3j = Web3j.build(new HttpService(TConfigUtils.selectIp()));
+		
+		if((boolean) modelMap.get("success")){
+			//获取前端发送的密语，密语密码，地址名和交易密码
+			JSONObject accountJson = JSONObject.parseObject((String) modelMap.get("data"));
+			String account = accountJson.getString("account");
+			try {
+				BigInteger balance = web3j.ethGetBalance(account,DefaultBlockParameterName.LATEST).send().getBalance();
+				modelMap.put("balance", Double.parseDouble(balance.toString()));
+				web3j.shutdown();
+			} catch (IOException e) {
+				modelMap.put("success", false);
+				modelMap.put("errMsg", "查询余额失败");
+				System.out.println("查询余额失败");
+				return modelMap;
+			}
+		}
+		return modelMap;
+	}
+	/**@api {get} /ethAccount/chargeFromInput/:提交账户充值信息.
+	* @apiVersion 0.1.0 
+	* @apiGroup Wallet
+	* @apiSuccess {String} do/did do,返回成功信息
+	* @apiSuccessExample Success-Response: HTTP/1.1 200 OK
+	* do */
+//	输入账户充值请求，提交账户地址（FROM），密码，私钥，钱包地址（TO）
+	@ResponseBody
+	@GetMapping("/chargeFromInput")
+	public Map<String, Object> chargeFromInput(
+			@RequestParam(name = "param", required = true) String jsonValue) {
+		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
+		if(!(boolean) modelMap.get("success")){
+			return modelMap;
+		}
+		JSONObject chargeJson = JSONObject.parseObject((String) modelMap.get("data"));
+		String account = chargeJson.getString("account");
+		String password = chargeJson.getString("password");
+		String defaultAcc = chargeJson.getString("defaultAcc");
+		String itcode = chargeJson.getString("itcode");
+		String keystore = chargeJson.getString("keystore");
+		
+		try {
+			List<Web3j> web3jList = new ArrayList<>();
+			List<String> ipArr = TConfigUtils.selectIpArr();
+			for(int i = 0; i < ipArr.size(); i++) {
+				web3jList.add(Web3j.build(new HttpService(ipArr.get(i))));
+			}
+			File keystoreFile = keystoreToFile(keystore, account + ".json");
+			System.out.println("开始解锁。。。");
+			Credentials credentials = WalletUtils.loadCredentials(password, keystoreFile);
+			System.out.println("解锁成功。。。");
+			keystoreFile.delete();
+			System.out.println("删除临时keystore文件成功。。。");
+			
+			BigInteger accountBalance = web3jList.get(new Random().nextInt(5)).ethGetBalance(account,DefaultBlockParameterName.LATEST).send().getBalance();
+			accountBalance = accountBalance.subtract(tax);
+			Double money = Double.parseDouble(accountBalance.toString());
+			if(money < 1000000000000000L) {
+				modelMap.put("success", false);
+				modelMap.put("errMsg", "balanceNotEnough");
+				return modelMap;
+			}
+			
+			EthGetTransactionCount ethGetTransactionCount = web3jList.get(new Random().nextInt(5)).ethGetTransactionCount(account, DefaultBlockParameterName.LATEST).sendAsync().get();
+			BigInteger nonce = ethGetTransactionCount.getTransactionCount();
+			System.err.println("nonce:" + nonce);
+			RawTransaction rawTransaction = RawTransaction.createEtherTransaction(nonce, BigInteger.valueOf(2200000000L), BigInteger.valueOf(2100000L), defaultAcc, accountBalance);
+			//签名Transaction，这里要对交易做签名
+			byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
+			String hexValue = Numeric.toHexString(signedMessage);
+			System.err.println("hexValue:" + hexValue);
+			//发送交易
+			String transactionHash = "";
+			String realTransactionHash = "";
+			for(int i = 0; i < web3jList.size(); i++) {
+				transactionHash = web3jList.get(i).ethSendRawTransaction(hexValue).sendAsync().get().getTransactionHash();
+				if(transactionHash != null) {
+					realTransactionHash = transactionHash;
+					System.out.println(transactionHash);
+				}
+			}
+			
+			WalletTransactionDomain wtd = new WalletTransactionDomain();
+			wtd.setItcode(itcode);
+			wtd.setAccountFrom(account);
+			wtd.setAccountTo(defaultAcc);
+			wtd.setAliasFrom("输入账户");
+			wtd.setAliasTo("默认账户");
+			wtd.setBalance(money);
+			wtd.setTransactionHash(realTransactionHash);
+			wtd.setConfirmTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+			walletTransactionService.insertBaseInfo(wtd);
+			
+			modelMap.put("transactionHash", transactionHash);
+		} catch (Exception e) {
+			System.out.println("解锁失败。。。");
+			if(e.getMessage().contains("Invalid password provided")) {
+				System.out.println("密码错误");
+				modelMap.put("success", false);
+				modelMap.put("errMsg", "invalidPassword");
+				return modelMap;
+			}
+		}
+    	
+		return modelMap;
+	}
+	
+	
 	
 }
