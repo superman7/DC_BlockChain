@@ -42,9 +42,11 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Numeric;
 
 import com.alibaba.fastjson.JSONObject;
+import com.digitalchina.xa.it.dao.SystemTransactionDetailDAO;
 import com.digitalchina.xa.it.kafkaConsumer.KafkaUtil;
 import com.digitalchina.xa.it.model.EthAccountDomain;
 import com.digitalchina.xa.it.model.KafkaConsumerBean;
+import com.digitalchina.xa.it.model.SystemTransactionDetailDomain;
 import com.digitalchina.xa.it.model.WalletTransactionDomain;
 import com.digitalchina.xa.it.service.EthAccountService;
 import com.digitalchina.xa.it.service.MnemonicService;
@@ -52,6 +54,7 @@ import com.digitalchina.xa.it.service.WalletTransactionService;
 import com.digitalchina.xa.it.util.DecryptAndDecodeUtils;
 import com.digitalchina.xa.it.util.Encrypt;
 import com.digitalchina.xa.it.util.EncryptImpl;
+import com.digitalchina.xa.it.util.HttpRequest;
 import com.digitalchina.xa.it.util.ResultUtil;
 import com.digitalchina.xa.it.util.TConfigUtils;
 
@@ -71,29 +74,60 @@ public class EthAccountController {
 	private MnemonicService mnemonicService;
     @Autowired
 	private WalletTransactionService walletTransactionService;
+	@Autowired
+	private SystemTransactionDetailDAO systemTransactionDetailDAO;
     
     private static String keystoreName = "keystore.json";
 	private static final BigInteger tax = BigInteger.valueOf(5000000000000000L);
 	private static String tempFilePath = "C://temp/";
 
+//	确认提现请求，提交账户地址（TO），金额，钱包地址（FROM）
+	/**
+	 * @apiDescription 确认提交请求,提交账户地址,金额,钱包地址
+	 * @param jsonValue
+	 * @return
+	 */
 	@ResponseBody
-	@PostMapping("/withdrawConfirm")
-	public void balanceQuery(
-		@RequestParam(name = "itcode", required = true) String itcode,
-		@RequestParam(name = "account", required = true) String account,
-		@RequestParam(name = "transactionDetailId", required = true) Integer transactionDetailId,
-		@RequestParam(name = "turnBalance", required = true) BigDecimal turnBalance){
+	@GetMapping("/withdrawConfirm")
+	public Map<String, Object> withdrawConfirm(
+			@RequestParam(name = "param", required = true) String param) {
+		String jsonValue = param.trim();
+		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
+		System.out.println(modelMap.get("data"));
+		if(!(boolean) modelMap.get("success")){
+			return modelMap;
+		}
+		JSONObject withdrawJson = JSONObject.parseObject((String) modelMap.get("data"));
 		
-		String sql = "SELECT * FROM am_ethaccount WHERE itcode = '" + itcode + "' AND available = 3";
-        List<Map<String, Object>> list = jdbc.queryForList(sql);
-        if(list.size() == 0){
-        	return;
-        }
-        String defaultAcc = list.get(0).get("account").toString();
-		String keystoreFile = list.get(0).get("keystore").toString();
-		String password = TConfigUtils.selectValueByKey("default_password");
-        KafkaConsumerBean kafkabean = new KafkaConsumerBean(transactionDetailId, defaultAcc, account, turnBalance.toBigInteger(), password, keystoreFile);
-        kafkaUtil.sendMessage("withdrawconfirm", "WithdrawConfirm", kafkabean);
+		String account = withdrawJson.getString("account");
+		String defaultAcc = withdrawJson.getString("defaultAcc");
+		String itcode = withdrawJson.getString("itcode");
+		String alias = withdrawJson.getString("alias");
+		Double money = (Double.parseDouble(withdrawJson.getString("money")))*10000000000000000L;
+		BigDecimal moneyBigDecimal = new BigDecimal(money);// 转账金额
+		
+		//记录提现交易信息
+		WalletTransactionDomain wtd = new WalletTransactionDomain();
+		wtd.setItcode(itcode);
+		wtd.setAccountFrom(defaultAcc);
+		wtd.setAccountTo(account);
+		wtd.setAliasFrom("默认账户");
+		wtd.setAliasTo(alias);
+		wtd.setBalance(money);
+		String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+		wtd.setConfirmTime(date);
+		Integer transactionDetailId = walletTransactionService.insertBaseInfo(wtd);
+		
+		//向system_transactiondetail表记录信息 
+		SystemTransactionDetailDomain stdd = new SystemTransactionDetailDomain(defaultAcc, account, money/10000000000000000L, null, date, 0, "remark", itcode, itcode, "", 0, "", transactionDetailId);
+		systemTransactionDetailDAO.insertBaseInfo(stdd);
+		
+		//向kafka发送交易请求，参数为：account，itcode，金额，transactionDetailId
+		String url = TConfigUtils.selectValueByKey("kafka_address") + "/ethAccount/withdrawConfirm";
+		String postParam = "itcode=" + itcode + "account" + account + "&transactionDetailId=" + transactionDetailId + "&turnBalance=" + moneyBigDecimal;
+		HttpRequest.sendPost(url, postParam);
+		
+		return modelMap;
 	}
 	@ResponseBody
 	@RequestMapping("/login")
@@ -319,7 +353,6 @@ public class EthAccountController {
 //		System.out.println(modelMap.get("success"));
 		List<EthAccountDomain> accountList = ethAccountService.selectEthAccountByItcode(itcode);
 		modelMap.put("accountList", accountList);
-		System.out.println("123123"+modelMap.get("success"));
 		return modelMap;
 	}
 	

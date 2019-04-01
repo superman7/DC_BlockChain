@@ -39,11 +39,16 @@ public class SystemTransactionDetailDomain {
 	    
 	    private int backup5;
 	    
-	    public SystemTransactionDetailDomain(String fromcount, String tocount, Double value, String turndate, int flag, String remark, String fromitcode, String toitcode, 
+	    public SystemTransactionDetailDomain(){
+	    	
+	    }
+	    
+		public SystemTransactionDetailDomain(String fromcount, String tocount, Double value, Double gas, String turndate, int flag, String remark, String fromitcode, String toitcode, 
 				String turnhash, int timer, String contracttype, int contractid) {
 			this.fromcount = fromcount;
 			this.tocount = tocount;
 			this.value = value;
+			this.gas = gas;
 			this.turndate = turndate;
 			this.flag = flag;
 			this.remark = remark;
@@ -55,11 +60,12 @@ public class SystemTransactionDetailDomain {
 			this.contractid = contractid;
 		}
 		
-		public SystemTransactionDetailDomain(String fromcount, String tocount, Double value, String turndate, int flag, String remark, String fromitcode, String toitcode, 
+		public SystemTransactionDetailDomain(String fromcount, String tocount, Double value, Double gas, String turndate, int flag, String remark, String fromitcode, String toitcode, 
 				String turnhash, int timer, String contracttype, int contractid, String backup1, String backup2, String backup3, int backup4, int backup5) {
 			this.fromcount = fromcount;
 			this.tocount = tocount;
 			this.value = value;
+			this.gas = gas;
 			this.turndate = turndate;
 			this.flag = flag;
 			this.remark = remark;
