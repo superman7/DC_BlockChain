@@ -88,7 +88,7 @@
     </body>
     <footer>
         <div align="center" style="position: absolute; bottom: 20px; height: 5%; width: 100%;">
-            <a href="wallet/walletIntroduce.jsp">使用指南</a>
+            <a href="/wallet/walletIntroduce.jsp">使用指南</a>
         </div>
     </footer>
 </html>

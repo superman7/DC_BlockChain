@@ -93,7 +93,7 @@ public class EthAccountController {
 			@RequestParam(name = "param", required = true) String param) {
 		String jsonValue = param.trim();
 		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
-		System.out.println(modelMap.get("data"));
+//		System.out.println(modelMap.get("data"));
 		if(!(boolean) modelMap.get("success")){
 			return modelMap;
 		}
