@@ -99,7 +99,7 @@
 		                $.ajax({
 		                    type: "GET",
 		                    url: "/ethAccount/accountList",
-		                    data: {"jsonStr" : data},
+		                    data: {"param" : data},
 		                    dataType: "json",
 		                    success: function(data) {
 		                        if (data.success) {
@@ -124,11 +124,13 @@
 		                                $("#laAccount").val($("#selectGroup").children('option:selected').attr("value"));
 		                                $("#laBalance").val(dataJson[$("#selectGroup").children('option:selected').text()].balance  + " SMB");
 		                        } else {
+		                        	alert(data);
 		                            alert("异常，请稍后再试");
 		                        }
 		                    }
 		                });
                     }
+                });
 
                 $("#selectGroup").change(function() {
                     var selectedAlias = $("#selectGroup").children('option:selected').text();
@@ -165,6 +167,7 @@
 
                     $("#waitGif").show();
                     $("#btnConfirm").attr("disabled", true);
+                    alert("qqqqqq");
                     $.ajax({
                         type: "GET",
                         url: "/wallet/getCheckUp.jsp",
@@ -181,7 +184,7 @@
 		                    $.ajax({
 		                        type: "GET",
 		                        url: "/ethAccount/chargeConfirm",
-		                        data: {"jsonStr" : data},
+		                        data: {"param" : data},
 		                        dataType: "json",
 		                        success: function(data) {
 		                            $("#waitGif").hide();
@@ -197,6 +200,7 @@
 		                        }
 		                    });
                         }
+                });
                 });
 
                 $("#btnQuery").click(function() {
@@ -217,7 +221,7 @@
 		                    $.ajax({
 		                        type: "GET",
 		                        url: "/ethAccount/balanceQuery",
-		                        data: {"jsonStr" : data},
+		                        data: {"param" : data},
 		                        dataType: "json",
 		                        success: function(data) {
 		                            $("#waitGif").hide();
@@ -230,11 +234,13 @@
 		                    });
                         }
                 });
+                });
 
                 $("#btnInputConfirm").click(function() {
                     var account = $("#inAccount").val();
                     var keystore = $("#inKeystore").val();
                     var password = $("#inPassword").val();
+                    alert(account+keystore+password);
                     if(account == "" || keystore == "" || password == "") {
                         alert("请将信息补充完整");
                         return;
@@ -256,6 +262,7 @@
                     $("#divWait").css("margin-top", "60%");
                     $("#waitGif").show();
                     $("#btnInputConfirm").attr("disabled", true);
+                    alert(itcode+account+password+keystore);
                     $.ajax({
                         type: "GET",
                         url: "/wallet/getCheckUp.jsp",
@@ -271,7 +278,7 @@
 		                    $.ajax({
 		                        type: "GET",
 		                        url: "/ethAccount/chargeFromInput",
-		                        data: {"jsonStr" : data},
+		                        data: {"param" : data},
 		                        dataType: "json",
 		                        success: function(data) {
 		                            $("#waitGif").hide();
@@ -291,6 +298,7 @@
 		                    });
                         }
                 });
+            });
             });
         </script>
     </head>

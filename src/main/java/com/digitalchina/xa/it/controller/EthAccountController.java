@@ -74,8 +74,7 @@ public class EthAccountController {
     
     private static String keystoreName = "keystore.json";
 	private static final BigInteger tax = BigInteger.valueOf(5000000000000000L);
-	private static String address = "0x024a3c0d945739237eedf78c80c6ae5daf22c010";
-	private static String tempFilePath = "/eth/javaServer/wallet/temp/";
+	private static String tempFilePath = "C://temp/";
 
 	@ResponseBody
 	@PostMapping("/withdrawConfirm")
@@ -320,7 +319,7 @@ public class EthAccountController {
 //		System.out.println(modelMap.get("success"));
 		List<EthAccountDomain> accountList = ethAccountService.selectEthAccountByItcode(itcode);
 		modelMap.put("accountList", accountList);
-//		System.out.println("123123"+modelMap.get("success"));
+		System.out.println("123123"+modelMap.get("success"));
 		return modelMap;
 	}
 	
@@ -333,7 +332,8 @@ public class EthAccountController {
 	@ResponseBody
 	@GetMapping("/chargeConfirm")
 	public Map<String, Object> chargeConfirm(
-			@RequestParam(name = "param", required = true) String jsonValue) {
+			@RequestParam(name = "param", required = true) String param) {
+		String jsonValue = param.trim();
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		System.out.println(jsonValue);
 		Encrypt encrypt = new EncryptImpl();
@@ -369,7 +369,6 @@ public class EthAccountController {
 		EthAccountDomain ethAccountDomain = new EthAccountDomain();
 		ethAccountDomain.setAccount(account);
 		String keystore = ethAccountService.selectKeystoreByAccount(ethAccountDomain);
-		System.out.println(keystore);
 		try {
 			List<Web3j> web3jList = new ArrayList<>();
 			List<String> ipArr = TConfigUtils.selectIpArr();
@@ -460,7 +459,8 @@ public class EthAccountController {
 	@ResponseBody
 	@GetMapping("/balanceQuery")
 	public Map<String, Object> balanceQuery(
-			@RequestParam(name = "param", required = true) String jsonValue) {
+			@RequestParam(name = "param", required = true) String param) {
+		String jsonValue = param.trim();
 		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
 		Web3j web3j = Web3j.build(new HttpService(TConfigUtils.selectIp()));
 		
@@ -491,7 +491,8 @@ public class EthAccountController {
 	@ResponseBody
 	@GetMapping("/chargeFromInput")
 	public Map<String, Object> chargeFromInput(
-			@RequestParam(name = "param", required = true) String jsonValue) {
+			@RequestParam(name = "param", required = true) String param) {
+		String jsonValue = param.trim();
 		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
 		if(!(boolean) modelMap.get("success")){
 			return modelMap;
@@ -537,6 +538,7 @@ public class EthAccountController {
 			String transactionHash = "";
 			String realTransactionHash = "";
 			for(int i = 0; i < web3jList.size(); i++) {
+				System.out.println(web3jList.size());
 				transactionHash = web3jList.get(i).ethSendRawTransaction(hexValue).sendAsync().get().getTransactionHash();
 				if(transactionHash != null) {
 					realTransactionHash = transactionHash;

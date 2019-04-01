@@ -40,7 +40,7 @@
                         })},
                         dataType: "text",
                         success: function(data) {
-                        	alert("123");
+                        	/* alert("123"); */
                         	$.ajax({
                         		type:"GET",
                         		url:"/ethAccount/getKeystore",
@@ -49,7 +49,6 @@
                         		success:function(data){
                         			if (data.success) {
                                         var keystore = data.keystore;
-                                        alert(keystore)
                                         $("#divKeystore").text(keystore);
                                         $("#keystoreModal").modal('show');
                                     } else {
