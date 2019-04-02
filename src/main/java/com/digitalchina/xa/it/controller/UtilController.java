@@ -30,19 +30,30 @@ public class UtilController {
 	@Autowired
     private EthAccountDAO ethAccountDAO;
 	
+	/**
+	 * @apiDescription 根据注册用户的账号自动创建默认账户的请求
+	 * @param itcode
+	 * @return
+	 */
 	@ResponseBody
 	@GetMapping("/getBalance")
-	public String getBalance(@RequestParam(name = "itcode", required = true) String itcode){
+	public String getBalance(
+			@RequestParam(name = "username", required = true) String username,
+			@RequestParam(name = "password",required = true) String password){
+		System.out.println("123123123123123");
 		Web3j web3j = Web3j.build(new HttpService(TConfigUtils.selectIp()));
-		EthAccountDomain ead = ethAccountService.selectDefaultEthAccount(itcode);
+		EthAccountDomain ead = ethAccountService.selectDefaultEthAccount(username);
 		String returnStr = "";
+		System.out.println(username+password);
 		if(ead == null) {
-			String account = CreatAddressUtils.creatAddressUtils(itcode);
+			String account = CreatAddressUtils.creatAddressUtils(username);
 			EthAccountDomain ethAccountDomain = new EthAccountDomain();
-			ethAccountDomain.setItcode(itcode);
+			ethAccountDomain.setItcode(username);
 			ethAccountDomain.setAccount(account);
+			ethAccountDomain.setBackup1(password);
+			ethAccountDomain.setBackup2(username);
 			ethAccountService.insertItcodeAndAccount(ethAccountDomain);
-			String keystore = GetPwdAndKeyStoreUtils.getDefaultPwdAndKeyStoreUtils(itcode).get("keystore");
+			String keystore = GetPwdAndKeyStoreUtils.getDefaultPwdAndKeyStoreUtils(username).get("keystore");
 			ethAccountService.updateKeystoreAndAlias(keystore, "默认账户", account, 4);
 			return account + "_" + 10;
 		}

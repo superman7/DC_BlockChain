@@ -13,7 +13,7 @@
         <meta name="description" content="Weaver E-mobile" />
         <meta name="keywords" content="weaver,e-mobile" />
         <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0" />
-        <title>登录页面</title>
+        <title>注册页面</title>
         <link rel="stylesheet" href="../css/trav.css"/>
         <link rel="stylesheet" href="../css/bootstrap.min.css" type="text/css" />
         <script src="../js/jquery-1.11.3.min.js" type="text/javascript"></script>
@@ -42,46 +42,62 @@
 			<script type="text/javascript">
 			var baseUrl = '/';
 			$(function(){
-			//	用户点击登录按钮时候，触发事件
-				$("#login_btn").click(checkLogin);
+				$("#regist_btn").click(regist);
 			});
-			function checkLogin(){
+			function regist(){
 			//	获取参数
-				var username = $("#username").val();
+				var username = $("#username").val().trim();
 				var u_pwd = $("#u_pwd").val().trim();
+				var final_u_pwd = $("#final_u_pwd").val().trim();
 				$("#username_msg").html("");
 				$("#pwd_msg").html("");
+				$("#final_pwd_msg").html("");
 			//	检查格式
 				ok = true;
 				if(username == ""){
 					ok = false;
 					$("#username_msg").html("账号不能为空");
 				}
+				if(!(username.length > 2 && username.length < 17)){
+					ok = false;
+					$("#username_msg").html("账号长度不合法(3-16位)");
+				}
+				
 				if(u_pwd == ""){
 					ok = false;
 					$("#pwd_msg").html("密码不能为空");
 				}
+				if(!(u_pwd.length>8 && u_pwd.length < 17)){
+					ok = false;
+					$("#pwd_msg").html("密码长度太短(9-16位)");
+				}
+				var reg = /^[a-zA-Z0-9_\.]+$/;
+				if(!(reg.test(u_pwd))){
+					ok = false;
+					$("#pwd_msg").html("密码格式不正确(密码由字母、数字、下划线和点组成，区分大小写)");
+				}
+				if(final_u_pwd == ""){
+					ok = false;
+					$("#final_pwd_msg").html("确认密码不能为空");
+				}
+				
+				if(!(u_pwd == final_u_pwd)){
+					ok = false;
+					$("#final_pwd_msg").html("密码不一致");
+				}
 				if(ok){
 					$.ajax({
-						url:baseUrl+"ethAccount/login",
-						type:"post",
-						data:{"username":username,"u_pwd":u_pwd},
-						dataType:"json",
-						success:function(result){
-							var s = result.data;
-							if(result.status == 0){
-								addCookie("username",username,2);
-								addCookie("u_pwd",u_pwd,2);
-								addCookie("itcode",result.data,2);
-								window.location.href = "/index.jsp";
-							}else if(result.status==1){
-								$("#username_msg").html(result.msg);
-							}else if(result.status==2){
-								$("#pwd_msg").html(result.msg);
-							}
+						url:"/eth/getBalance",
+						type:"get",
+						data:{"username":username,"password":u_pwd},
+						dataType:"text",
+						success:function(data){
+							alert(data);
+							alert("注册成功,将跳转至登录界面!");							
+							window.location.href= "/login.jsp";
 						},
 						error:function(){
-							alert("登录异常");
+							alert("注册异常");
 						}
 					});
 				}
@@ -89,11 +105,12 @@
 			</script>
 </head>
 <body>
-					 <h1 align="center"class=" aui-text-info">登录</h1>
+					 <h1 align="center"class=" aui-text-info">注册</h1>
                     <form >
                         <input type="text" id="username" class="aui-input" placeholder="请输入账号"><span id="username_msg"></span>
-                        <input type="text" id="u_pwd" class="aui-input" placeholder="请输入密码"><span id="pwd_msg"></span>
-                        <div align="center" ><button type="button" id="login_btn" class="aui-text-info " >登录</button></div>
+                        <input type="password" id="u_pwd" class="aui-input" placeholder="请输入密码"><span id="pwd_msg"></span>
+                        <input type="password" id="final_u_pwd" class="aui-input" placeholder="请再次输入密码"><span id="final_pwd_msg"></span>
+                        <div align="center" ><button type="button" id="regist_btn" class="aui-text-info " >注册</button></div>
                     </form>
 </body>
 </html>
