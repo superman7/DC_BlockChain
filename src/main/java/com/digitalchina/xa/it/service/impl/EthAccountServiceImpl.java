@@ -233,7 +233,8 @@ public class EthAccountServiceImpl implements EthAccountService {
 	public ResultUtil selectBackup1ByBackup2(String username,String pwd) {
 		ResultUtil result = new ResultUtil();
 		EthAccountDomain eth = ethAccountDAO.selectBackup1ByBackup2(username);
-		if (eth.getBackup1() == null) {
+		if ( eth == null ) {
+			System.out.println("账号不存在");
 			result.setStatus(1);
 			result.setMsg("输入账号不存在请注册");
 			return result;
