@@ -161,7 +161,7 @@ public class PaidLotteryController {
 				modelMap.put("data", "LotteryOver");
 				return modelMap;
 			}
-			//直接更新Info表nowSumAmount、backup4（待确认交易笔数）
+			//直接更新 表nowSumAmount、backup4（待确认交易笔数）
 			tPaidlotteryService.updateNowSumAmountAndBackup4(lotteryId);
 		}
 		

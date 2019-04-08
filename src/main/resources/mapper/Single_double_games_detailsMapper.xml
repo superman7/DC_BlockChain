@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digitalchina.xa.it.dao.Single_double_games_detailsDao" >
+	<sql id="BASE_TABLE">
+		single_double_games_details
+	</sql>
+
+	<sql id="BASE_COLUMN">
+		id,lotteryId,itcode,account,hashcode,ticket,result,winTicket,winReward,buyTime,backup1,backup2,backup3,backup4,backup5
+	</sql>
+	<insert id="insertLotteryBaseInfo" parameterType="com.digitalchina.xa.it.model.TPaidlotteryDetailsDomain">
+		<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+            select @@IDENTITY as id
+        </selectKey>
+		INSERT INTO
+			<include refid="BASE_TABLE"/>
+			<trim prefix="(" suffix=")" suffixOverrides=",">
+				lotteryId,itcode,account,hashcode,ticket,result,winTicket,winReward,buyTime,backup1,backup2,backup3,backup4,backup5
+			</trim>
+			<trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+				#{lotteryId, jdbcType=INTEGER},#{itcode, jdbcType=VARCHAR},#{account,jdbcType=VARCHAR},#{hashcode,jdbcType=VARCHAR},
+				#{ticket,jdbcType=VARCHAR},#{result,jdbcType=INTEGER},#{winTicket,jdbcType=VARCHAR},#{winReward,jdbcType=VARCHAR},
+				#{buyTime,jdbcType=TIMESTAMP},#{backup1, jdbcType=VARCHAR},#{backup2, jdbcType=VARCHAR},#{backup3, jdbcType=INTEGER},#{backup4, jdbcType=INTEGER},#{backup5, jdbcType=INTEGER}
+			</trim>
+	</insert>
+</mapper>
