@@ -139,6 +139,7 @@ public class PaidLotteryController {
 		Integer lotteryId = Integer.valueOf(jsonObj.getString("lotteryId"));
 		Integer backup4 = Integer.valueOf(jsonObj.getString("option"));
 		String itcode = jsonObj.getString("itcode");
+		Integer choose = Integer.valueOf(jsonObj.getString("choose"));
 		BigInteger turnBalance = BigInteger.valueOf( Long.valueOf(jsonObj.getString("unitPrice")) * 10000000000000000L);
 		
 		//余额判断

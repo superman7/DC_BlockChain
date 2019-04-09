@@ -1,11 +1,14 @@
 package com.digitalchina.xa.it.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.digitalchina.xa.it.dao.Single_double_games_detailsDao;
 import com.digitalchina.xa.it.dao.Single_double_games_lottery_infoDao;
 import com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain;
+import com.digitalchina.xa.it.model.SingleDoubleGamesInfoDomain;
 import com.digitalchina.xa.it.service.GameService;
 @Service(value="gameService")
 public class GameServiceimpl implements GameService{
@@ -17,6 +20,7 @@ public class GameServiceimpl implements GameService{
 	public Boolean updateNowSumAmountAndBackup4(int id) {
 		try {
 			Integer effectedNumber = single_double_games_lottery_infoDao.updateNowSumAmountAndBackup4(id);
+			System.out.println(effectedNumber);
 			if(effectedNumber > 0) {
 				return true;
 			} else {
@@ -44,6 +48,18 @@ public class GameServiceimpl implements GameService{
 		} else {
 			throw new RuntimeException("tPaidlotteryDetailsDomain为null");
 		}
+	}
+
+	@Override
+	public SingleDoubleGamesInfoDomain selectOneSmbTpid() {
+		// TODO Auto-generated method stub
+		return single_double_games_lottery_infoDao.selectOneSmbTpid();
+	}
+
+	@Override
+	public List<SingleDoubleGamesInfoDomain> selectNewOpen(int count) {
+		// TODO Auto-generated method stub
+		return single_double_games_lottery_infoDao.selectNewOpen(count);
 	}
 
 }

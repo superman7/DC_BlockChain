@@ -86,11 +86,11 @@
                     url: "/wallet/getCheckUp.jsp",
                     data: {"jsonStr" : JSON.stringify({
                         "itcode" : itcode,
-                        "id" : id
+                        "id" : 1
                     })},
                     dataType: "text",
                     success: function(data) {
-			            $.ajax({
+			            /* $.ajax({
 		                    type: "GET",
 		                    url: "/game/getOne",
 		                    data: {"param" : data},
@@ -100,8 +100,9 @@
 		                        	
 		                        }
 		                    }
-			            });
+			            }); */
                     }
+	            });
 	            $("#selectGroup").change(function() {
                     var selectedAlias = $("#selectGroup").children('option:selected').text();
                     var account = $(this).children('option:selected').attr("value");
@@ -109,14 +110,15 @@
                     $("#balance").val(balance + " SMB");
                 });
 	            $("#btnConfirm").click(function() {
-	            	
+	            	var choose = $("#choose").val();
+	            	alert(choose);
                     var money = $("#money").val();
-                    var balance = $("balance").val();
+                    var balance = $("#balance").val();
                     if(Number(balance <= 0)){
                     	alert("账户金额不足请及时充值");
                     	return;
                     }
-                    if(Number(money)>Number(balance))){
+                    if(Number(money)>Number(balance)){
                     	alert("请输入合法的金额");
                 		return;    
 	            	}
@@ -126,22 +128,28 @@
 		                url: "/wallet/getCheckUp.jsp",
 		                data: {"jsonStr" : JSON.stringify({
 		                	"itcode" : itcode,
-		                	"ganme_no":id,
-		                	"account": account,
+		                	"ganme_no":1,
 		                	"money" : money,
-		                	
+		                	"backup4":1
 		                	
 		                })},
 		                dataType: "text",
 		                success: function(data) {
+		                	alert(data);
 			                $.ajax({
 			                    type: "GET",
 			                    url: "/ethAccount/accountList",
 			                    data: {"param" : data},
 			                    dataType: "json",
 			                    success: function(data) {
-	            }
+			                    	alert(data)
+			                    }
+			                });
+		                }
+		            });
+	            });
             });
+         });
             
         </script>
     </head>
@@ -167,16 +175,16 @@
     </ul>
 </div>
     <div class="aui-content aui-margin-b-15">
-    <ul class="aui-list aui-select-list">
+    <ul class="aui-list aui-select-list" >
         
         <li class="aui-list-item" >
             <div class="aui-list-item-label" align="center">
-                <label ><input class="aui-radio" type="radio" name="radio2" id="single"> 单数</label><br>
+                <label ><input class="aui-radio" type="radio" name="radio2" value="1"> 单数</label><br>
             </div>
         </li>
         <li class="aui-list-item" >
             <div class="aui-list-item-label" align="center">
-                <label><input class="aui-radio" type="radio" name="radio2" id="double"> 双数</label>
+                <label><input class="aui-radio" type="radio" name="radio2" value="2"> 双数</label>
             </div>
         </li>
        	</ul>
@@ -212,6 +220,44 @@
                 <div class="aui-bar-tab-label">我的</div>
             </div>
         </footer>
+        <div id="wode" hidden="hidden">
+            <section class="aui-content">
+                <ul class="aui-list aui-list-in aui-margin-b-15">
+                    <li id="introduce" class="aui-list-item">
+                        <div class="aui-list-item-label-icon">
+                            <i><img src="../img/wanfajianjie.png"  class="img-responsive center-block" style="width: 25px; height: 25px;"></i>
+                        </div>
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title">玩法简介</div>
+                        </div>
+                    </li>
+                    <li id="myRecores" class="aui-list-item">
+                        <div class="aui-list-item-label-icon">
+                            <i><img src="../img/duobaojilu.png"  class="img-responsive center-block" style="width: 25px; height: 25px;"></i>
+                        </div>
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title">夺宝记录</div>
+                        </div>
+                    </li>
+                    <li id="myAchieve" class="aui-list-item">
+                        <div class="aui-list-item-label-icon">
+                            <i><img src="../img/wodechengjiu.png"  class="img-responsive center-block" style="width: 25px; height: 25px;"></i>
+                        </div>
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title">我的成就</div>
+                        </div>
+                    </li>
+                    <li id="contactUs" class="aui-list-item">
+                        <div class="aui-list-item-label-icon">
+                            <i><img src="../img/lianxiwomen.png"  class="img-responsive center-block" style="width: 25px; height: 25px;"></i>
+                        </div>
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title">联系我们</div>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+        </div>
         <div class="modal" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
