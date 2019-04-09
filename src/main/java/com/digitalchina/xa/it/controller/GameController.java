@@ -149,10 +149,10 @@ public class GameController {
 		String itcode = jsonObj.getString("itcode");
 		int id = Integer.valueOf(jsonObj.getString("id"));
 		
-		TPaidlotteryInfoDomain tpid = gameService.selectLotteryInfoById(id);
-		List<TPaidlotteryDetailsDomain> tpddList = gameService.selectLotteryDetailsByItcodeAndLotteryId(itcode, id);
+		SingleDoubleGamesInfoDomain tpid = gameService.selectLotteryInfoById(id);
+		List<SingleDoubleGamesDetailsDomain> tpddList = gameService.selectGameDetailsByItcodeAndLotteryId(itcode, id);
 		
-		for(TPaidlotteryDetailsDomain tpldd : tpddList){
+		for(SingleDoubleGamesDetailsDomain tpldd : tpddList){
 	        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			tpldd.setHashcode(sdf.format(tpldd.getBuyTime()));
 		}

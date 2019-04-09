@@ -15,6 +15,8 @@ public class GameServiceimpl implements GameService{
 	@Autowired
 	private Single_double_games_lottery_infoDao single_double_games_lottery_infoDao;
 	@Autowired
+	private Single_double_games_detailsDao single_double_games_detailsDao;
+	@Autowired
 	private Single_double_games_detailsDao gameDetailsDao;
 	@Override
 	public Boolean updateNowSumAmountAndBackup4(int id) {
@@ -66,6 +68,12 @@ public class GameServiceimpl implements GameService{
 	public SingleDoubleGamesInfoDomain selectLotteryInfoById(int id) {
 		// TODO Auto-generated method stub
 		return single_double_games_lottery_infoDao.selectLotteryInfoById(id);
+	}
+
+	@Override
+	public List<SingleDoubleGamesDetailsDomain> selectGameDetailsByItcodeAndLotteryId(String itcode, int lotteryId) {
+		// TODO Auto-generated method stub
+		return single_double_games_detailsDao.selectGameDetailsByItcodeAndLotteryId(itcode, lotteryId);
 	}
 
 }

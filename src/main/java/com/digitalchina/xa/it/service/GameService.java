@@ -18,4 +18,6 @@ public interface GameService {
 	List<SingleDoubleGamesInfoDomain> selectNewOpen(int count);
 	//根据id获取抽奖Info
 	SingleDoubleGamesInfoDomain selectLotteryInfoById(int id);
+	//根据itcode、lotteryId查询某用户的某次押注购买记录
+	List<SingleDoubleGamesDetailsDomain> selectGameDetailsByItcodeAndLotteryId(String itcode,int lotteryId);
 }
