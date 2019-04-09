@@ -62,4 +62,10 @@ public class GameServiceimpl implements GameService{
 		return single_double_games_lottery_infoDao.selectNewOpen(count);
 	}
 
+	@Override
+	public SingleDoubleGamesInfoDomain selectLotteryInfoById(int id) {
+		// TODO Auto-generated method stub
+		return single_double_games_lottery_infoDao.selectLotteryInfoById(id);
+	}
+
 }

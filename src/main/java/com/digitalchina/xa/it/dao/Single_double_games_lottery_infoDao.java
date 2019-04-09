@@ -12,5 +12,7 @@ public interface Single_double_games_lottery_infoDao {
 	SingleDoubleGamesInfoDomain selectOneSmbTpid();
 	
 	List<SingleDoubleGamesInfoDomain> selectNewOpen(@Param("count")int count);
+	//根据Id获取抽奖信息
+	SingleDoubleGamesInfoDomain selectLotteryInfoById(@Param("id")int id);
 
 }

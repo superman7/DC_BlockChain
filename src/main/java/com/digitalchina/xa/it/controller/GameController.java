@@ -23,6 +23,7 @@ import org.web3j.protocol.http.HttpService;
 import com.alibaba.fastjson.JSONObject;
 import com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain;
 import com.digitalchina.xa.it.model.SingleDoubleGamesInfoDomain;
+import com.digitalchina.xa.it.model.TPaidlotteryDetailsDomain;
 import com.digitalchina.xa.it.model.TPaidlotteryInfoDomain;
 import com.digitalchina.xa.it.service.EthAccountService;
 import com.digitalchina.xa.it.service.GameService;
@@ -96,6 +97,11 @@ public class GameController {
 		return modelMap;
 	}
 	
+	/**
+	 * 查找已开奖信息和未开奖信息
+	 * @param param
+	 * @return
+	 */
 	@ResponseBody
 	@GetMapping("/gameInfo/getData")
 	public Map<String, Object> getData(
@@ -119,14 +125,39 @@ public class GameController {
 		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		for(SingleDoubleGamesInfoDomain tpid : newOpenList){
 	        tpid.setBackup1(sdf.format(tpid.getLotteryTime()));
-	        System.out.println(sdf.format(tpid.getLotteryTime()));
-		}
-		
+//	        System.out.println(sdf.format(tpid.getLotteryTime()));
+		}		
 		modelMap.put("smbData", JSONObject.toJSON(sdgid));
 //		modelMap.put("hbData", JSONObject.toJSON(hbTpidList));
 //		modelMap.put("otherData", JSONObject.toJSON(otherTpidList));
 		modelMap.put("newOpen", JSONObject.toJSON(newOpenList));
 		
+		return modelMap;
+	}
+	
+	@Transactional
+	@ResponseBody
+	@GetMapping("/lotteryInfo/getOne")
+	public Map<String, Object> selectLotteryInfoById(
+			@RequestParam(name = "param", required = true) String param){
+			String jsonValue = param.trim();
+		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
+		if(!(boolean) modelMap.get("success")){
+			return modelMap;
+		}
+		JSONObject jsonObj = JSONObject.parseObject((String) modelMap.get("data"));
+		String itcode = jsonObj.getString("itcode");
+		int id = Integer.valueOf(jsonObj.getString("id"));
+		
+		TPaidlotteryInfoDomain tpid = gameService.selectLotteryInfoById(id);
+		List<TPaidlotteryDetailsDomain> tpddList = gameService.selectLotteryDetailsByItcodeAndLotteryId(itcode, id);
+		
+		for(TPaidlotteryDetailsDomain tpldd : tpddList){
+	        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			tpldd.setHashcode(sdf.format(tpldd.getBuyTime()));
+		}
+		modelMap.put("infoData", JSONObject.toJSON(tpid));
+		modelMap.put("detailData", JSONObject.toJSON(tpddList));
 		return modelMap;
 	}
 

@@ -164,7 +164,7 @@
                 //发送请求，获取夺宝信息，查看该用户是否参与此次夺宝，若参与，展示夺宝号码
                 $.ajax({
                     type: "GET",
-                    url: "getLotteryData",
+                    url: "/game/gameInfo/getData",
                     data: {"itcode" : itcode},
                     dataType: "json",
                     success: function(data) {
@@ -175,35 +175,8 @@
                             newOpen = data.newOpen;
                             var innerHtml = "";
                             var innerHtml2 = "";
-                            
-                            for(var index = 0; index < otherData.length; index++) {
-                                innerHtml += "<div class='aui-card-list' onClick='clickToDetail("+otherData[index].id+")'><div class='aui-card-list-header' style='font-size:140%;'>【第"+otherData[index].id+"期】"+otherData[index].description+"</div><div class='aui-card-list-content' align='center'><img src='../img/lottery_korvschn_1.png' class='img-responsive center-block' style='height: 130px;width: 93%;'><div class='aui-content-padded'><font style='text-align: center;color: black;'>结果公布后开奖，当前已有&nbsp;<strong>" + otherData[index].nowSumAmount/10 + "</strong>&nbsp;人次参与</font></div>"
-
-                                  + "<font style='text-align: center;color: gray;'><strong id='strOnce'>"+otherData[index].unitPrice+"</strong>&nbsp;SZB/夺宝码&nbsp;&nbsp;每人限购 <strong id='strLimit'>"+otherData[index].limitEveryday+"</strong>&nbsp;次&nbsp;&nbsp;</font></div><div class='aui-card-list-footer' align='center'><p><div><button type='button' class='btn btn-info btn-sm'>点击进入</button></div></p></div></div>";
-                            }
-
-                            // if(itcode == "fannl" || itcode == "lizhe1" || itcode == "mojja" || itcode == "alexshen" || itcode == "zhoujingb") {
-                            //     for(var index = 0; index < otherData.length; index++) {
-                            //         innerHtml += "<div class='aui-card-list' onClick='clickToDetail("+otherData[index].id+")'><div class='aui-card-list-header' style='font-size:140%;'>【第"+otherData[index].id+"期】"+otherData[index].description+"</div><div class='aui-card-list-content' align='center'><img src='../img/lottery_pk_1.jpg' class='img-responsive center-block' style='height: 130px;width: 93%;'><div class='aui-content-padded'><font style='text-align: center;color: black;'>结果公布后开奖，当前已有&nbsp;<strong>" + otherData[index].nowSumAmount/10 + "</strong>&nbsp;人次参与</font></div>"
-
-                            //           + "<font style='text-align: center;color: gray;'><strong id='strOnce'>"+otherData[index].unitPrice+"</strong>&nbsp;SZB/夺宝码&nbsp;&nbsp;每人限购 <strong id='strLimit'>"+otherData[index].limitEveryday+"</strong>&nbsp;次&nbsp;&nbsp;</font></div><div class='aui-card-list-footer' align='center'><p><div><button type='button' class='btn btn-info btn-sm'>点击进入</button></div></p></div></div>";
-                            //     }
-                            // }
-
-                            for(var index = 0; index < hbData.length; index++) {
-                                if (hbData[index].backup3 == '') {
-                                    innerHtml += "<div class='aui-card-list' onClick='clickToDetail("+hbData[index].id+")'><div class='aui-card-list-header' style='font-size:140%;'>【第"+hbData[index].id+"期】"+hbData[index].description+"</div><div class='aui-card-list-content' align='center'><img src='../img/lottery_rmb_1.jpg' class='img-responsive center-block' style='height: 130px;width: 93%;'><div class='aui-content-padded'><div class='aui-progress aui-progress-xs'><div class='aui-progress-bar' style='width: "+hbData[index].nowSumAmount/hbData[index].winSumAmount*100+"%;'></div></div></div><font style='text-align: center;color: gray;'><strong id='strOnce'>"+hbData[index].unitPrice+"</strong>&nbsp;SZB/夺宝码&nbsp;&nbsp;每人限购 <strong id='strLimit'>"+hbData[index].limitEveryday+"</strong>&nbsp;次&nbsp;&nbsp;已累计 <strong id='strHaved'>"+hbData[index].nowSumAmount+"</strong>&nbsp;SZB</font></div><div class='aui-card-list-footer' align='center'><p><div><button type='button' class='btn btn-info btn-sm'>点击进入</button></div></p></div></div>";
-                                } else {
-                                    var imageUrl1 = hbData[index].backup3.replace("2","1");
-                                    innerHtml += "<div class='aui-card-list' onClick='clickToDetail("+hbData[index].id+")'><div class='aui-card-list-header' style='font-size:140%;'>【第"+hbData[index].id+"期】"+hbData[index].name+"</div><div class='aui-card-list-content' align='center'><img src='../img/"+imageUrl1+"' class='img-responsive center-block' style='height: 130px;width: 93%;'><div class='aui-content-padded'>" + "<font style='text-align: center;color: black;'>" + hbData[index].description + "</font><br>" + "<font style='text-align: center;color: gray;'>当前累计参与&nbsp;<strong>" + hbData[index].nowSumAmount/10 + "</strong>&nbsp;人次</font><br>"
-
-                                  + "<font style='text-align: center;color: gray;'><strong id='strOnce'>"+hbData[index].unitPrice+"</strong>&nbsp;SZB/夺宝码&nbsp;&nbsp;每人每日限购 <strong id='strLimit'>"+hbData[index].limitEveryday+"</strong>&nbsp;次&nbsp;&nbsp;</font></div></div><div class='aui-card-list-footer' align='center'><p><div><button type='button' class='btn btn-info btn-sm'>点击进入</button></div></p></div></div>";
-                                }
-                            }
                             innerHtml += "<div class='aui-card-list' onClick='clickToDetail("+smbData.id+")'><div class='aui-card-list-header' style='font-size:140%;'>【第"+smbData.id+"期】"+smbData.description+"</div><div class='aui-card-list-content' align='center'><img src='../img/lottery_szb_1.jpg' class='img-responsive center-block' style='height: 130px;width: 93%;'><div class='aui-content-padded'><div class='aui-progress aui-progress-xs'><div class='aui-progress-bar' style='width: "+smbData.nowSumAmount/smbData.winSumAmount*100+"%;'></div></div></div><font style='text-align: center;color: gray;'><strong id='strOnce'>"+smbData.unitPrice+"</strong>&nbsp;SZB/夺宝码&nbsp;&nbsp;每人限购 <strong id='strLimit'>"+smbData.limitEveryday+"</strong>&nbsp;次&nbsp;&nbsp;已累计 <strong id='strHaved'>"+smbData.nowSumAmount+"</strong>&nbsp;SZB</font></div><div class='aui-card-list-footer' align='center'><p><div><button type='button' class='btn btn-info btn-sm'>点击进入</button></div></p></div></div>"
                             $("#divLotteryList").prepend(innerHtml);
-
-                            
                             for(var index = 0; index < newOpen.length; index++) {
                                 var reg = new RegExp("&","g");
                                 var winnerStr = newOpen[index].winner.replace(reg,",");
