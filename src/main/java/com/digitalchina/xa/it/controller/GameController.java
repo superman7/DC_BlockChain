@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -105,13 +106,9 @@ public class GameController {
 	@ResponseBody
 	@GetMapping("/gameInfo/getData")
 	public Map<String, Object> getData(
-			@RequestParam(name = "param", required = true) String param){
-			String jsonValue = param.trim();
-		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
-		if(!(boolean) modelMap.get("success")){
-			return modelMap;
-		}
-		JSONObject jsonObj = JSONObject.parseObject((String) modelMap.get("data"));
+			@RequestParam(name = "itcode", required = true) String itcode){
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+//		System.out.println(itcode);
 //		String itcode = jsonObj.getString("itcode");
 //		int id = Integer.valueOf(jsonObj.getString("id"));
 		//查询当前的未开奖SMB押注
@@ -127,6 +124,7 @@ public class GameController {
 	        tpid.setBackup1(sdf.format(tpid.getLotteryTime()));
 //	        System.out.println(sdf.format(tpid.getLotteryTime()));
 		}		
+		modelMap.put("success", true);
 		modelMap.put("smbData", JSONObject.toJSON(sdgid));
 //		modelMap.put("hbData", JSONObject.toJSON(hbTpidList));
 //		modelMap.put("otherData", JSONObject.toJSON(otherTpidList));
@@ -137,25 +135,21 @@ public class GameController {
 	
 	@Transactional
 	@ResponseBody
-	@GetMapping("/lotteryInfo/getOne")
+	@GetMapping("/getOne")
 	public Map<String, Object> selectLotteryInfoById(
-			@RequestParam(name = "param", required = true) String param){
-			String jsonValue = param.trim();
-		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
-		if(!(boolean) modelMap.get("success")){
-			return modelMap;
-		}
-		JSONObject jsonObj = JSONObject.parseObject((String) modelMap.get("data"));
-		String itcode = jsonObj.getString("itcode");
-		int id = Integer.valueOf(jsonObj.getString("id"));
-		
-		SingleDoubleGamesInfoDomain tpid = gameService.selectLotteryInfoById(id);
-		List<SingleDoubleGamesDetailsDomain> tpddList = gameService.selectGameDetailsByItcodeAndLotteryId(itcode, id);
+			@RequestParam(name = "itcode", required = true) String itcode,
+			@RequestParam(name = "id", required = true) String id){
+		 int id1 = Integer.parseInt(id); 
+		Map<String, Object> modelMap = new HashMap<String, Object>();		
+		System.out.println(itcode+id);
+		SingleDoubleGamesInfoDomain tpid = gameService.selectLotteryInfoById(id1);
+		List<SingleDoubleGamesDetailsDomain> tpddList = gameService.selectGameDetailsByItcodeAndLotteryId(itcode, id1);
 		
 		for(SingleDoubleGamesDetailsDomain tpldd : tpddList){
 	        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			tpldd.setHashcode(sdf.format(tpldd.getBuyTime()));
 		}
+		modelMap.put("success", true);
 		modelMap.put("infoData", JSONObject.toJSON(tpid));
 		modelMap.put("detailData", JSONObject.toJSON(tpddList));
 		return modelMap;

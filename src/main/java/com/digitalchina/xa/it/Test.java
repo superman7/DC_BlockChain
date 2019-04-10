@@ -84,15 +84,9 @@ public class Test {
 	private GameService game;
 	@org.junit.Test
 	public void insertNewBlock(){
-//		gameController.insertGameDetails();
-		System.out.println(TConfigUtils.selectValueByKey("game_show_finsh_size"));
-		List<SingleDoubleGamesInfoDomain> newOpenList = game.selectNewOpen(Integer.valueOf(TConfigUtils.selectValueByKey("game_show_finsh_size")));
-		System.out.println("123123"+newOpenList.size());
-		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		for(SingleDoubleGamesInfoDomain tpid : newOpenList){
-	        tpid.setBackup1(sdf.format(tpid.getLotteryTime()));
-	        System.out.println(sdf.format(tpid.getLotteryTime()));
-		}
+		SingleDoubleGamesInfoDomain tpid = game.selectOneSmbTpid();
+		System.out.println(tpid.getId());
+		
 	}
 	
 }

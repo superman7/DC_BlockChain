@@ -35,6 +35,8 @@
         <script type="text/javascript" src="../js/aui_script/api.js" ></script>
         <script type="text/javascript" src="../js/aui_script/aui-tab.js" ></script>
         <script type="text/javascript" src="../js/aui_script/aui-pull-refresh.js"></script>
+        <script type='text/javascript' src='../js/check_login.js'></script>
+		<script type="text/javascript" src='../js/cookie_util.js'></script>
         <script type="text/javascript">
             var itcode;
             var baseUrl = '/';
@@ -44,7 +46,7 @@
             var newOpen;
 
             $(function() {
-            	itcode = $("#itcode").text();
+            	itcode = getCookie("itcode");
                 $("#shouye").show();
                 apiready = function(){
                     api.parseTapmode();
@@ -99,68 +101,77 @@
 
                 //
                 window.showLotteryDetail = function(id) {
-                    $.ajax({
+                	$.ajax({
                         type: "GET",
-                        url: baseUrl + "getLotteryInfo",
+                        url: "/wallet/getCheckUp.jsp",
                         data: {"jsonStr" : JSON.stringify({
                             "itcode" : itcode,
                             "id" : id
                         })},
-                        dataType: "json",
+                        dataType: "text",
                         success: function(data) {
-                            if (data.success) {
-                                var infoData = data.infoData;
-                                var detailData = data.detailData;
-                                var numberArr = infoData.winTicket.split("&");
-                                var winnerArr = infoData.winner.split("&");
-                                var htmlStr1 = "";
-                                for(var index = 0; index < numberArr.length; index++) {
-                                    htmlStr1 += "<tr><td style='word-break: break-all;text-align: center;'>"+numberArr[index]+"</td><td style='word-break: break-all;text-align: center;'>"+winnerArr[index]+"</td></tr>";
-                                }
-                                var htmlStr2 = "";
-                                var rewordArr = [];
-                                if(detailData.length == 0) {
-                                    htmlStr2 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>抱歉，您未参与！</td></tr>";
-                                    $("#modalResult").html(htmlStr1);
-                                    $("#modalMine").html(htmlStr2);
-                                    $("#resultModal").modal('show');
-                                    return;
-                                }
-
-                                for(var index = 0; index < detailData.length; index++) {
-                                    for(var j = 0; j < numberArr.length; j++) {
-                                        if (numberArr[j] == detailData[index].ticket) {
-                                            htmlStr2 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;color:red;'>"+detailData[index].ticket+"</td></tr>";
-                                            rewordArr.push(detailData[index].winReword);
-                                        } else {
-                                            htmlStr2 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>"+detailData[index].ticket+"</td></tr>";
-                                        }
-                                    }
-                                }
-
-                                var htmlStr3 = "";
-                                if(rewordArr.length == 0) {
-                                    htmlStr3 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>很抱歉，您未中奖</td></tr>";
-                                } else if(infoData.typeCode == 0) {
-                                    var rewordStr = ""
-                                    for (var i = 0; i < rewordArr.length; i++) {
-                                        rewordStr += rewordArr[i] + "，";
-                                    }
-                                    htmlStr3 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>恭喜您获奖，红包码为：<strong style='color:red;'>" + rewordStr +"</strong>请在支付宝中搜索领取。</td></tr>";
-                                } else if (infoData.typeCode == 1) {
-                                    htmlStr3 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>恭喜您获奖，<strong style='color:red;'>" + infoData.reward+" SMB</strong>将在稍后发放到您的账户中！</td></tr>";
-                                }
-
-                                $("#modalResult").html(htmlStr1);
-                                $("#modalMine").html(htmlStr2);
-                                $("#modalHongbao").html(htmlStr3);
-                                $("#lotteryTab").show();
-                                $("#resultModal").modal('show');
-                            }
+		                    $.ajax({
+		                        type: "GET",
+		                        url: "/game/getOne",
+		                        data: {"param" : data},
+		                        dataType: "json",
+		                        success: function(data) {
+		                            if (data.success) {
+		                                var infoData = data.infoData;
+		                                var detailData = data.detailData;
+		                                var numberArr = infoData.winTicket.split("&");
+		                                var winnerArr = infoData.winner.split("&");
+		                                var htmlStr1 = "";
+		                                for(var index = 0; index < numberArr.length; index++) {
+		                                    htmlStr1 += "<tr><td style='word-break: break-all;text-align: center;'>"+numberArr[index]+"</td><td style='word-break: break-all;text-align: center;'>"+winnerArr[index]+"</td></tr>";
+		                                }
+		                                var htmlStr2 = "";
+		                                var rewordArr = [];
+		                                if(detailData.length == 0) {
+		                                    htmlStr2 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>抱歉，您未参与！</td></tr>";
+		                                    $("#modalResult").html(htmlStr1);
+		                                    $("#modalMine").html(htmlStr2);
+		                                    $("#resultModal").modal('show');
+		                                    return;
+		                                }
+		
+		                                for(var index = 0; index < detailData.length; index++) {
+		                                    for(var j = 0; j < numberArr.length; j++) {
+		                                        if (numberArr[j] == detailData[index].ticket) {
+		                                            htmlStr2 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;color:red;'>"+detailData[index].ticket+"</td></tr>";
+		                                            rewordArr.push(detailData[index].winReword);
+		                                        } else {
+		                                            htmlStr2 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>"+detailData[index].ticket+"</td></tr>";
+		                                        }
+		                                    }
+		                                }
+		
+		                                var htmlStr3 = "";
+		                                if(rewordArr.length == 0) {
+		                                    htmlStr3 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>很抱歉，您未中奖</td></tr>";
+		                                } else if(infoData.typeCode == 0) {
+		                                    var rewordStr = ""
+		                                    for (var i = 0; i < rewordArr.length; i++) {
+		                                        rewordStr += rewordArr[i] + "，";
+		                                    }
+		                                    htmlStr3 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>恭喜您获奖，红包码为：<strong style='color:red;'>" + rewordStr +"</strong>请在支付宝中搜索领取。</td></tr>";
+		                                } else if (infoData.typeCode == 1) {
+		                                    htmlStr3 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>恭喜您获奖，<strong style='color:red;'>" + infoData.reward+" SMB</strong>将在稍后发放到您的账户中！</td></tr>";
+		                                }
+		
+		                                $("#modalResult").html(htmlStr1);
+		                                $("#modalMine").html(htmlStr2);
+		                                $("#modalHongbao").html(htmlStr3);
+		                                $("#lotteryTab").show();
+		                                $("#resultModal").modal('show');
+		                            }
+		                        }
+		                    });
+		                        	
                         }
-                    });
+                	});
                 }
-
+                //alert(itcode);
                 //发送请求，获取夺宝信息，查看该用户是否参与此次夺宝，若参与，展示夺宝号码
                 $.ajax({
                     type: "GET",
@@ -168,6 +179,7 @@
                     data: {"itcode" : itcode},
                     dataType: "json",
                     success: function(data) {
+                    	//alert(data.success);
                         if (data.success) {
                             hbData = data.hbData;
                             smbData = data.smbData;
@@ -192,7 +204,7 @@
                                     bkImgStr = newOpen[index].backup3.replace("2","1");
                                 }
 
-                                innerHtml2 += "<div class='aui-card-list' style='background-color:#F7F0EA;' onClick='showLotteryDetail("+newOpen[index].id+")'><div class='aui-card-list-header' style='font-size:140%;'>【第"+newOpen[index].id+"期】 "+newOpen[index].name+"</div><div class='aui-card-list-content'><img src='../img/"+bkImgStr+"' class='img-responsive center-block' style='height: 130px;width: 93%;'></div><div class='aui-card-list-footer'>获奖者："+winnerStr+"<br>幸运号码："+ticketStr+"<br>开奖时间："+newOpen[index].backup1;
+                                innerHtml2 += "<div class='aui-card-list' style='background-color:#F7F0EA;' onClick='showLotteryDetail("+newOpen[index].id+")'><div class='aui-card-list-header' style='font-size:140%;'>【第"+newOpen[index].id+"期】 "+newOpen[index].name+"</div><div class='aui-card-list-content'><img src='../img/"+bkImgStr+"' class='img-responsive center-block' style='height: 130px;width: 93%;'></div><div class='aui-card-list-footer'><br>幸运号码："+ticketStr+"<br>开奖时间："+newOpen[index].backup1;
 
                                 if (winnerStr.indexOf(itcode) > -1) {
                                     innerHtml2 += "<br>中奖提示：您已中奖！<br>点击进入查看详情。</div></div>";
@@ -207,7 +219,7 @@
               	//进入单次抽奖详情页面
                 window.clickToDetail = function(id) {
                     /* window.location.href="/mobile/plugin/dch/smbTest/lottery/lotteryBuyPage.jsp?itcode="+itcode+"&id="+id; */
-                    window.location.href = baseUrl + "lotteryBuyPage?itcode="+itcode+"&id="+id;
+                    window.location.href = "/game/gameBuyPage.jsp?itcode="+itcode+"&id="+id;
                 }
               	
                 $("#introduce").click(function() {

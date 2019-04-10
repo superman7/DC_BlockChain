@@ -12,7 +12,7 @@ public interface GameService {
 	//更新目前奖池和参与人员个数
 	Boolean updateNowSumAmountAndBackup4(int id);
 	int insertGameBaseInfo(SingleDoubleGamesDetailsDomain singleDoubleGamesDetailsDomain);
-	//获取游戏列表
+	//获取未开奖游戏列表
 	SingleDoubleGamesInfoDomain selectOneSmbTpid();
 	//查找最新获奖信息
 	List<SingleDoubleGamesInfoDomain> selectNewOpen(int count);
