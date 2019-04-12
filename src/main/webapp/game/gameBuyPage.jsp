@@ -131,6 +131,7 @@
                                 infoData = data.infoData;
                                 detailData = data.detailData;
                                 boughtCount = detailData.length;
+                                
                                 selfBoughtCount = 0;
                                 todayBoughtCount = 0;
                                 acceptInviteCount = 0;
@@ -153,65 +154,6 @@
                                         }
                                     }
                                 }
-                            //选项抽奖
-                            if (infoData.typeCode - 1 > 0) {
-                                $("#fontReword1").text(infoData.description);
-                                $("#strHaved1").text(infoData.nowSumAmount/10);
-                                nowCount = infoData.nowSumAmount/10;
-                                var bkImgStr = infoData.backup3;
-
-                                document.getElementById("singleLottery").style.display="none";
-                                document.getElementById("inviteLottery").style.display="none";
-                                document.getElementById("optionLottery").style.display="";
-
-                                $("#bkImg1").attr("src", "../img/"+bkImgStr);
-                                changeProgress(infoData.nowSumAmount);
-                                //已售罄，请等待开奖
-                                if(infoData.flag == 1) {
-                                    var htmlStr = "<a onClick='viewResult()'>查看结果</a>";
-                                    $("#divBottom1").html(htmlStr);
-                                    $("#divBottom2").hide();
-                                    $("#divBottom3").hide();
-                                    return;
-                                }
-                                
-                                //判断是否参与
-                                var innerHtml = "";
-                                //选项抽奖
-                                var divBottom1Html = "";
-                                var divBottom2Html = "";
-                                var divBottom3Html = "";
-                                if(boughtCount == 0){
-                                    divBottom1Html = "<font style='text-align: center;color: gray;'>点击下方参与有奖竞猜</font>";
-                                    divBottom3Html = "<button type='button' class='btn btn-info btn-sm' onClick='buyClickOption(1)'>" + infoData.backup1 + "</button>&nbsp;&nbsp;&nbsp;&nbsp;"
-                                    + "<button type='button' class='btn btn-info btn-sm' onClick='buyClickOption(2)'>" + infoData.backup2 + "</button>";
-
-                                    $("#divBottom1").html("<font style='text-align: center;color: gray;'>点击下方参与有奖竞猜</font>");
-                                    $("#divBottom2").hide();
-                                    $("#divBottom3").html(divBottom3Html);
-
-                                } else if (boughtCount >= infoData.limitEveryday) {
-                                    divBottom2Html = "<font style='text-align: center;color: gray;'>已达购买上限&nbsp;<strong>" + boughtCount 
-                                        + "</strong>&nbsp;次</font>";
-                                    divBottom3Html = "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>";
-                                    $("#divBottom1").hide();
-                                    $("#divBottom2").html(divBottom2Html);
-                                    $("#divBottom3").html(divBottom3Html);
-                                } else if(boughtCount < infoData.limitEveryday) {
-                                    divBottom1Html = "<font style='text-align: center;color: gray;'>已购买&nbsp;<strong>" + boughtCount 
-                                        + "</strong>&nbsp;次</font>";
-                                    divBottom2Html = "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>";
-                                    divBottom3Html = "<button type='button' class='btn btn-info btn-sm' onClick='buyClickOption(1)'>" + infoData.backup1 + "</button>&nbsp;&nbsp;&nbsp;&nbsp;"
-                                        + "<button type='button' class='btn btn-info btn-sm' onClick='buyClickOption(2)'>" + infoData.backup2 + "</button>";
-
-                                    $("#divBottom1").html(divBottom1Html);
-                                    $("#divBottom2").html(divBottom2Html);
-                                    $("#divBottom3").html(divBottom3Html);
-                                }
-
-                                // $("#divBottom1").html(innerHtml);
-                            //普通抽奖
-                            }else{
                                 $("#fontReword").text(infoData.description);
                                 $("#strHaved").text(infoData.nowSumAmount);
                                 $("#strSum").text(infoData.winSumAmount);
@@ -234,11 +176,10 @@
                                         $("#divBottom").html(htmlStr);
                                         return;
                                     }
-                                    
                                     //判断是否参与
                                     var innerHtml = "";
-
                                     if(boughtCount == 0){
+                                    	//alert(boughtCount);
                                         innerHtml = "<div class='aui-list-item-inner' id = 'gameChoose'><div class='aui-list-item-label'>请选择单双</div><div class='aui-list-item-input'><label><input class='aui-radio' type='radio' name='choose' value='1' checked> 单</label><label><input class='aui-radio' type='radio' name='choose' value='2'> 双</label></div></div>"
 										+"<button type='button' style='float: left; margin-left: 20%;' class='btn btn-info btn-sm' onClick='buyClick()'>立即抢购</button>";
                                         innerHtml += "<button type='button' style='float: right; margin-right: 20%;' class='btn btn-info btn-sm' onClick='viewTicket()'>查看夺宝码</button>";
@@ -249,89 +190,9 @@
                                         + "</strong>&nbsp;次</font>"
                                         + "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>"
                                         + "<button id='btnBuy' type='button' class='btn btn-info btn-sm' style='float: right; margin-right: 20px;' onClick='buyClick()'>继续购买</button>";
-                                    }
-                                    
+                                    } 
                                     $("#divBottom").html(innerHtml);
-                                //带邀请好友功能
-                                }else{
-                                    document.getElementById("singleLottery").style.display="none";
-                                    document.getElementById("optionLottery").style.display="none";
-                                    document.getElementById("inviteLottery").style.display="";
-                                    $("#fontReword2").text(infoData.description);
-                                    $("#strHaved2").text(infoData.nowSumAmount/10);
-                                    nowCount = infoData.nowSumAmount/10;
-                                    $("#bkImg2").attr("src", "../img/"+bkImgStr);
-                                    changeProgress(infoData.nowSumAmount);
-                                    //已售罄，请等待开奖
-                                    if(infoData.flag == 1) {
-                                        var htmlStr = "<a onClick='viewResult()'>查看结果</a>";
-                                        $("#divBottom21").html(htmlStr);
-                                        $("#divBottom22").hide();
-                                        $("#divBottom23").hide();
-                                        return;
-                                    }
-                                    
-                                    //判断是否参与
-                                    var innerHtml = "";
-                                    //基础信息div(今日参与、已获得多少票。已收到/接受多少邀请)
-                                    var divBottom21Html = "";
-                                    //抢购+查看夺宝码
-                                    var divBottom22Html = "";
-                                    //
-                                    var divBottom23Html = "";
-
-                                    var inviteSpssHtml = "";
-
-                                    if(todayBoughtCount == 0){
-                                        inviteSpssHtml = "<font>&nbsp;已获得&nbsp;<strong>" + acceptInviteCount + "</strong>&nbsp;枚夺宝码奖励</font>";
-
-                                        divBottom21Html = "<font>&nbsp;您共获得&nbsp;<strong>" + boughtCount + "</strong>&nbsp;枚夺宝码，今日未购买</font>";
-                                        divBottom22Html = "<font>预计获奖率&nbsp;</font><font style='color:red;'><strong>" + Math.round(boughtCount / nowCount * 10000) / 100.00 + "%</strong></font>，<font>收益</font><font style='color:red;'><strong>" + Math.round(boughtCount / nowCount * 100 * rewardPrice) / 100.00 +"</strong></font>";
-
-                                        divBottom23Html = "<button type='button' style='float: left; margin-left: 20%;' class='btn btn-info btn-sm' onClick='buyClickInvite()'>立即抢购</button>" + "<button type='button' style='float: right; margin-right: 20%;' class='btn btn-info btn-sm' onClick='viewTicket()'>查看夺宝码</button>";
-                                        $("#divBottom21").html(divBottom21Html);
-                                        $("#divBottom22").html(divBottom22Html);
-                                        $("#divBottom23").html(divBottom23Html);
-                                        $("#inviteSpss").html(inviteSpssHtml);
-                                        $("#divBottom21").show();
-                                        $("#divBottom22").show();
-                                        $("#divBottom23").show();
-                                    } else if (todayBoughtCount >= infoData.limitEveryday) {
-                                        inviteSpssHtml = "<font>&nbsp;已获得&nbsp;<strong>" + acceptInviteCount + "</strong>&nbsp;枚夺宝码奖励</font>";
-
-                                        divBottom21Html = "<font>&nbsp;您共获得&nbsp;<strong>" + boughtCount + "</strong>&nbsp;枚夺宝码，今日已购买</font>";
-                                        divBottom22Html = "<font>预计获奖率&nbsp;</font><font style='color:red;'><strong>" + Math.round(boughtCount / nowCount * 10000) / 100.00 + "%</strong></font>，<font>收益</font><font style='color:red;'><strong>" + Math.round(boughtCount / nowCount * 100 * rewardPrice) / 100.00 +"</strong></font>";
-                                        divBottom23Html = "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'>查看夺宝码</button>";
-                                        $("#divBottom21").html(divBottom21Html);
-                                        $("#divBottom22").html(divBottom22Html);
-                                        $("#divBottom23").html(divBottom23Html);
-                                        $("#inviteSpss").html(inviteSpssHtml);
-                                        $("#divBottom21").show();
-                                        $("#divBottom22").show();
-                                        $("#divBottom23").show();
-                                    } else if(todayBoughtCount < infoData.limitEveryday) {
-                                        inviteSpssHtml = "<font>&nbsp;已获得&nbsp;<strong>" + acceptInviteCount + "</strong>&nbsp;枚夺宝码奖励</font>";
-
-                                        divBottom21Html = "<font>&nbsp;您共获得&nbsp;<strong>" + boughtCount + "</strong>&nbsp;枚夺宝码，今日已购买&nbsp;<strong>" + todayBoughtCount + "</strong>&nbsp;次</font>";
-                                        divBottom22Html = "<font>预计获奖率&nbsp;</font><font style='color:red;'><strong>" + Math.round(boughtCount / nowCount * 10000) / 100.00 + "%</strong></font>，<font>收益</font><font style='color:red;'><strong>" + Math.round(boughtCount / nowCount * 100 * rewardPrice) / 100.00 +"</strong></font>";
-                                        divBottom23Html = "<button type='button' style='float: left; margin-left: 20%;' class='btn btn-info btn-sm' onClick='buyClickInvite()'>继续抢购</button>" + "<button type='button' style='float: right; margin-right: 20%;' class='btn btn-info btn-sm' onClick='viewTicket()'>查看夺宝码</button>";
-                                        $("#divBottom21").html(divBottom21Html);
-                                        $("#divBottom22").html(divBottom22Html);
-                                        $("#divBottom23").html(divBottom23Html);
-                                        $("#inviteSpss").html(inviteSpssHtml);
-                                        $("#divBottom21").show();
-                                        $("#divBottom22").show();
-                                        $("#divBottom23").show();
-                                    }
-                                    $("#inviteUser").show();
-                                    //if(itcode == "fannl" || itcode == "lizhe1" || itcode == "mojja" || itcode == "alexshen" || itcode == "liyuank" || itcode == "zhoujingb" || itcode == "zhangyangac" || itcode == "liuhze" || itcode == "wuzk" || itcode == "weiyg" || itcode == "xiapp" || itcode == "xueleic" || itcode == "liuxyai" || itcode == "yaoqiangc" || itcode == "fengshuo1" || itcode == "qiutong1" || itcode == "yangkaid" || itcode == "chenningc") {
-                                    //     if (infoData.backup3 != '') {
-                                    //         $("#inviteUser").show();
-                                    //     }
-                                    // }
-
                                 }
-                            }
                         }
                     }
                 });
@@ -394,7 +255,7 @@
                     } else {
                         $.ajax({
                             type: "GET",
-                            url: baseUrl + "selectLotteryInfo",
+                            url: baseUrl + "game/selectGameInfo",
                             data: {
                             	"lotteryId" : infoData.id
                             },
@@ -415,52 +276,62 @@
                         return;
                     }
  					var choosed = $("input[name='choose']:checked").val();
- 					//alert(choosed+"hahaha");
+ 					alert(choosed+"hahaha");
                     confirm
                     if(confirm("您确认花费 "+ infoData.unitPrice +"SZB 购买吗？") == true){
                         showDefault("loading");
                         $.ajax({
                             type: "GET",
-                            url: baseUrl + "game/insertGameDetails",
-                            data: {
+                            url: "/wallet/getCheckUp.jsp",
+                            data: {"jsonStr" : JSON.stringify({
+                            	"choosed" : choosed,
 								"itcode" : itcode,
                                 "unitPrice" : infoData.unitPrice,
                                 "lotteryId" : infoData.id,
-                                "option" : "0"
-                            },
-                            dataType: "json",
+                                "backup4" : infoData.backup4
+                            })},
+                            dataType: "text",
                             success: function(data) {
-                                if (data.success) {
-                                    toast.hide();
-                                    if(data.data == "balanceNotEnough") {
-                                        alert("您的余额不足!");
-                                        return;
-                                    }
-                                    if(data.data == "lotteryOver") {
-                                        alert("已售罄，请等待开奖!");
-                                        return;
-                                    }
-                                    alert("正在生成夺宝码，请稍后查看");
-                                    boughtCount += 1;
-                                    selfBoughtCount += 1;
-                                    var htmlStr = "";
-                                    if (selfBoughtCount >= infoData.limitEveryday) {
-                                        htmlStr = "<font style='float: left; margin-left: 15px;'>已达购买上限&nbsp;<strong>" + selfBoughtCount 
-                                            + "</strong>&nbsp;次</font>"
-                                            + "<button type='button' style='float: right; margin-right: 15px;' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>";
-                                    } else {
-                                        htmlStr = "<font style='float: left; margin-left: 20px;'>已购买&nbsp;<strong>" + selfBoughtCount 
-                                            + "</strong>&nbsp;次</font>"
-                                            + "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>"
-                                            + "<button id='btnBuy' type='button' class='btn btn-info btn-sm' style='float: right; margin-right: 20px;' onClick='buyClick()'>继续购买</button>";
-                                    } 
-                                    $("#divBottom").html(htmlStr);
-
-                                    var nowAmount = parseInt($("#divProgress").attr("aria-valuenow"))+10;
-                                    changeProgress(nowAmount);
-                                    $("#strHaved").text(nowAmount);
-                                    $("#strRest").text(infoData.winSumAmount - nowAmount);
-                                }
+		                        $.ajax({
+		                            type: "GET",
+		                            url: baseUrl + "game/insertGameDetails",
+		                            data: {"param":data},
+		                            dataType: "json",
+		                            error:console.log(data),
+		                            success: function(data) {
+		                                if (data.success) {
+		                                    toast.hide();
+		                                    if(data.data == "balanceNotEnough") {
+		                                        alert("您的余额不足!");
+		                                        return;
+		                                    }
+		                                    if(data.data == "lotteryOver") {
+		                                        alert("已售罄，请等待开奖!");
+		                                        return;
+		                                    }
+		                                    alert("正在生成夺宝码，请稍后查看");
+		                                    boughtCount += 1;
+		                                    selfBoughtCount += 1;
+		                                    var htmlStr = "";
+		                                    if (selfBoughtCount >= infoData.limitEveryday) {
+		                                        htmlStr = "<font style='float: left; margin-left: 15px;'>已达购买上限&nbsp;<strong>" + selfBoughtCount 
+		                                            + "</strong>&nbsp;次</font>"
+		                                            + "<button type='button' style='float: right; margin-right: 15px;' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>";
+		                                    } else {
+		                                        htmlStr = "<font style='float: left; margin-left: 20px;'>已购买&nbsp;<strong>" + selfBoughtCount 
+		                                            + "</strong>&nbsp;次</font>"
+		                                            + "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>"
+		                                            + "<button id='btnBuy' type='button' class='btn btn-info btn-sm' style='float: right; margin-right: 20px;' onClick='buyClick()'>继续购买</button>";
+		                                    } 
+		                                    $("#divBottom").html(htmlStr);
+		
+		                                    var nowAmount = parseInt($("#divProgress").attr("aria-valuenow"))+10;
+		                                    changeProgress(nowAmount);
+		                                    $("#strHaved").text(nowAmount);
+		                                    $("#strRest").text(infoData.winSumAmount - nowAmount);
+		                                }
+		                            }
+		                        });
                             }
                         });
                     }

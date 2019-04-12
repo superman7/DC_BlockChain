@@ -20,4 +20,9 @@ public interface GameService {
 	SingleDoubleGamesInfoDomain selectLotteryInfoById(int id);
 	//根据itcode、lotteryId查询某用户的某次押注购买记录
 	List<SingleDoubleGamesDetailsDomain> selectGameDetailsByItcodeAndLotteryId(String itcode,int lotteryId);
+	//生成中奖号码
+	int  generateWinTicketNew(int lotteryId, int winCount, int option);
+	//定時任務自動開獎
+	void runALottery(SingleDoubleGamesInfoDomain sdid);
+	 
 }

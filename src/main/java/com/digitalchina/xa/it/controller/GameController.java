@@ -57,16 +57,21 @@ public class GameController {
 	public Map<String, Object> insertGameDetails(
 		@RequestParam(name = "param",required = true) String param){
 		String jsonValue = param.trim();
+		System.out.println(jsonValue);
 		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
-		if (!(boolean)modelMap.get("success")) {
-			return modelMap;
-		}
+//		System.out.println("0000000");
+		System.out.println(modelMap.get("success"));
+//		if (!(boolean)modelMap.get("success")) {
+//			return modelMap;
+//		}
 		JSONObject jsonObj = JSONObject.parseObject((String) modelMap.get("data"));
-		Integer game_no = Integer.valueOf(jsonObj.getString("id"));
+		System.out.println(jsonObj);
+		Integer game_no = Integer.valueOf(jsonObj.getString("lotteryId"));
 		Integer backup4 = Integer.valueOf(jsonObj.getString("backup4"));
 		String itcode = jsonObj.getString("itcode");
-		String account = jsonObj.getString("account");
-		BigInteger turnBalance = BigInteger.valueOf( Long.valueOf(jsonObj.getString("money")) * 10000000000000000L);
+		Integer choosed = Integer.valueOf(jsonObj.getString("choosed"));
+		System.out.println(game_no+backup4+itcode+choosed+"123123123123");
+		BigInteger turnBalance = BigInteger.valueOf( Long.valueOf(jsonObj.getString("unitPrice")) * 10000000000000000L);
 		//余额判断
 		try {
 			Web3j web3j = Web3j.build(new HttpService(TConfigUtils.selectIp()));
@@ -84,13 +89,13 @@ public class GameController {
 		gameService.updateNowSumAmountAndBackup4(game_no);
 		}
 	    //向detail表中插入信息，参数为lotteryId,itcode,result(0),buytime
-		SingleDoubleGamesDetailsDomain sdgd = new SingleDoubleGamesDetailsDomain(game_no, itcode, "", "", "", 0, "", turnBalance.toString(), new Timestamp(new Date().getTime()), "", "", 0,backup4,0);
+		SingleDoubleGamesDetailsDomain sdgd = new SingleDoubleGamesDetailsDomain(game_no, itcode, "", "", "", 0, "", "", new Timestamp(new Date().getTime()), "", "", 0,backup4,choosed);
 		int transactionId = gameService.insertGameBaseInfo(sdgd);
 		System.out.println("transactionId"+transactionId);
 		//向kafka发送请求，参数为itcode，transactionId，金额？，lotteryId，产生hashcode，更新account字段，并返回hashcode与transactionId。
-		String url = TConfigUtils.selectValueByKey("kafka_address")+"game/buyTicket";
+		String url = TConfigUtils.selectValueByKey("kafka_address")+"/game/buyTicket";
 		System.out.println(url);
-		String postParam = "itcode="+itcode+"&turnBalance="+turnBalance.toString()+"&transactionId="+transactionId;
+		String postParam = "itcode="+itcode+"&turnBalance="+turnBalance.toString()+"&transactionId="+transactionId+"&choosed"+choosed;
 		HttpRequest.sendPost(url, postParam);
 		//kafka那边更新account和hashcode
 		//定时任务，查询到
@@ -152,6 +157,23 @@ public class GameController {
 		modelMap.put("success", true);
 		modelMap.put("infoData", JSONObject.toJSON(tpid));
 		modelMap.put("detailData", JSONObject.toJSON(tpddList));
+		return modelMap;
+	}
+	
+	//点击购买按钮后查询表内信息
+	@Transactional
+	@ResponseBody
+	@GetMapping("/selectGameInfo")
+	public Map<String, Object> selectLotteryInfo(
+			@RequestParam(name = "lotteryId", required = true) String id){
+		Map<String, Object> modelMap = new HashMap<String,Object>();
+		Integer lotteryId = Integer.parseInt(id);
+		SingleDoubleGamesInfoDomain tpid = gameService.selectLotteryInfoById(lotteryId);
+		if(tpid.getNowSumAmount() >= tpid.getWinSumAmount()) {
+			modelMap.put("data", "LotteryOver");
+			return modelMap;
+		}
+		modelMap.put("data", "success");
 		return modelMap;
 	}
 
