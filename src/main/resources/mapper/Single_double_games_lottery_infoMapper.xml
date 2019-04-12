@@ -80,6 +80,15 @@
 		WHERE
 			flag = 0
 	</select>
+	
+	<update id="updateBackup4To0">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			backup4 = 0
+		WHERE
+			id = #{id, jdbcType=INTEGER}
+	</update>
 
 	<update id="updateNowSumAmountAndBackup4">
 		UPDATE 

@@ -143,9 +143,9 @@ public class GameTask {
 		for(int index = 0; index < tpidList.size(); index++) {
 			SingleDoubleGamesInfoDomain tpid = tpidList.get(index);
 			//查询抽奖details中，区块链交易已确认的个数
-			int count1 = tPaidlotteryDetailsDAO.selectCountByBackup3(tpid.getId(), 1);
+			int count1 = single_double_games_detailsDao.selectCountByBackup3(tpid.getId(), 1);
 			if(count1 >= (tpid.getWinSumAmount() / tpid.getUnitPrice())) {
-				tPaidlotteryInfoDAO.updateBackup4To0(tpid.getId());
+			single_double_games_lottery_infoDao.updateBackup4To0(tpid.getId());
 			}
 		}
 	}

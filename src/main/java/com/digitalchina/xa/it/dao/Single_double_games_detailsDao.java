@@ -13,5 +13,6 @@ public interface Single_double_games_detailsDao {
 	List<SingleDoubleGamesDetailsDomain> selectLotteryDetailsByLotteryId(@Param("lotteryId")int lotteryId);
 	//开奖后更新result，winTicket，winReword
 	int updateDetailAfterLotteryFinished(@Param("id")int id, @Param("result")int result, @Param("winTicket")String winTicket, @Param("winReward")String winReward);
-		
+	//根据lottery，backup3查询个数
+	int selectCountByBackup3(@Param("lotteryId")int lotteryId, @Param("backup3")int backup3);
 }

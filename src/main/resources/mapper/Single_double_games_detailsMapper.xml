@@ -57,6 +57,18 @@
 			lotteryId = #{lotteryId,jdbcType=INTEGER}
 	</select>
 	
+	<select id="selectCountByBackup3" resultType="java.lang.Integer">
+		SELECT
+			COUNT(id)
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			lotteryId = #{lotteryId, jdbcType=INTEGER}
+		AND
+			backup3 = #{backup3, jdbcType=INTEGER}
+	</select>
+	
+	
 	<update id="updateDetailAfterLotteryFinished">
 		UPDATE 
 			<include refid="BASE_TABLE"/>
