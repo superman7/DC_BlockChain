@@ -30,5 +30,7 @@ public interface Single_double_games_lottery_infoDao {
 	void insertLotteryInfo(TPaidlotteryInfoDomain tplid);
 	//成功交易个数与backup4相等时，backup4更新为0
 	int updateBackup4To0(@Param("id")int id);
+	//出现交易失败时，更新nowSumAmount、backup4
+	int updateNowSumAmountAndBackup4Sub(@Param("id")int id, @Param("count")int count);
 		
 }

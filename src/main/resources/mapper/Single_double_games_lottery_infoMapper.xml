@@ -80,6 +80,16 @@
 		WHERE
 			flag = 0
 	</select>
+	<select id="selectDetailByBackup3" resultType="com.digitalchina.xa.it.model.SingleDoubleGamesInfoDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			lotteryId = #{lotteryId, jdbcType=INTEGER}
+		AND
+			backup3 = #{backup3, jdbcType=INTEGER}
+	</select>
 	
 	<update id="updateBackup4To0">
 		UPDATE 
@@ -120,7 +130,15 @@
 		WHERE
 			id = #{id, jdbcType=INTEGER}
 	</update>
-
+	<update id="updateNowSumAmountAndBackup4Sub">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			nowSumAmount = nowSumAmount - unitPrice * #{count,jdbcType=INTEGER},
+			backup4 = backup4 - #{count,jdbcType=INTEGER}
+		WHERE
+			id = #{id,jdbcType=INTEGER}
+	</update>
 
 
 

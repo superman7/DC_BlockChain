@@ -22,6 +22,7 @@ import com.digitalchina.xa.it.dao.Single_double_games_lottery_infoDao;
 import com.digitalchina.xa.it.dao.TConfigDAO;
 import com.digitalchina.xa.it.dao.TPaidlotteryDetailsDAO;
 import com.digitalchina.xa.it.dao.TPaidlotteryInfoDAO;
+import com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain;
 import com.digitalchina.xa.it.model.SingleDoubleGamesInfoDomain;
 import com.digitalchina.xa.it.model.TConfigDomain;
 import com.digitalchina.xa.it.model.TPaidlotteryDetailsDomain;
@@ -55,10 +56,10 @@ public class GameTask {
 	@Transactional
 	@Scheduled(fixedRate=10000)
 	public void updateTurnResultStatusJob(){
-		tPaidlotteryDetailsDAO.updateLotteryDetailsWhereTimeOut();
+		single_double_games_detailsDao.updateLotteryDetailsWhereTimeOut();
 		
 		Web3j web3j = Web3j.build(new HttpService(ip[new Random().nextInt(5)]));
-		List<TPaidlotteryDetailsDomain> wtdList = tPaidlotteryDetailsDAO.selectLotteryDetailsWhereHashIsNotNullAndBackup3Is0();
+		List<SingleDoubleGamesDetailsDomain> wtdList = single_double_games_detailsDao.selectLotteryDetailsWhereHashIsNotNullAndBackup3Is0();
 		if(wtdList == null) {
 			web3j.shutdown();
 			return;
@@ -90,21 +91,21 @@ public class GameTask {
 	@Scheduled(fixedRate=30000)
 	public void lotteryUnfinishedUpdate(){
 		//查询未结束的抽奖
-		List<TPaidlotteryInfoDomain> tpidList = tPaidlotteryInfoDAO.selectUnfinishedLottery();
+		List<SingleDoubleGamesInfoDomain> tpidList = single_double_games_lottery_infoDao.selectUnfinishedLottery();
 		if(tpidList.size() == 0) {
 			return;
 		}
 		for(int index = 0; index < tpidList.size(); index++) {
-			TPaidlotteryInfoDomain tpid = tpidList.get(index);
+			SingleDoubleGamesInfoDomain tpid = tpidList.get(index);
 			//查询抽奖details中，区块链交易已失败的个数
-			List<TPaidlotteryDetailsDomain> errorList = tPaidlotteryDetailsDAO.selectDetailByBackup3(tpid.getId(), 2);
+			List<SingleDoubleGamesDetailsDomain> errorList = single_double_games_detailsDao.selectDetailByBackup3(tpid.getId(), 2);
 			if(errorList.size() > 0) {
 				//更新Info表nowSumAmount，backup4
 				//将已失败交易的金额累计清除，更新交易状态为3
 				System.out.println("将LotteryID-" + tpid.getId() + "-已失败交易的金额累计清除，更新交易状态为3,清除金额为-" + errorList.size() + "*单价");
-				tPaidlotteryInfoDAO.updateNowSumAmountAndBackup4Sub(tpid.getId(), errorList.size());
+				single_double_games_lottery_infoDao.updateNowSumAmountAndBackup4Sub(tpid.getId(), errorList.size());
 				for(int j = 0; j < errorList.size(); j++) {
-					tPaidlotteryDetailsDAO.updateBackup3From2To3(errorList.get(j).getId());
+					single_double_games_detailsDao.updateBackup3From2To3(errorList.get(j).getId());
 				}
 			}
 		}
