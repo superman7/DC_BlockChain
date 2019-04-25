@@ -24,4 +24,8 @@ public interface Single_double_games_detailsDao {
 	List<SingleDoubleGamesDetailsDomain> selectDetailByBackup3(@Param("lotteryId")int lotteryId, @Param("backup3")int backup3);
 	//将backup3=2改为3
 	int updateBackup3From2To3(@Param("id")int id);
+	//根据id查询
+	SingleDoubleGamesDetailsDomain selectLotteryDetailsById(@Param("id")int id);
+	//交易成功后更新ticket, transactionId字段
+	int updateTicket(@Param("ticket")String ticket, @Param("transactionId")int transactionId);
 }

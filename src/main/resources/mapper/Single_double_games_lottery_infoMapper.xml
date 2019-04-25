@@ -40,7 +40,7 @@
 	</select>
 	<select id="selectNewOpen" resultType="com.digitalchina.xa.it.model.SingleDoubleGamesInfoDomain">
 		SELECT
-			id,name,description,winner,winTicket,lotteryTime,backup2,typeCode,backup3,backup1
+			id,name,description,winner,winTicket,lotteryTime,backup2,typeCode,backup3,backup1,nowSumPerson,unitPrice
 		FROM
 			<include refid="BASE_TABLE"/>
 		WHERE
@@ -66,10 +66,7 @@
 			<include refid="BASE_TABLE"/>
 		WHERE
 			flag = 0
-		AND
-			winSumAmount = nowSumAmount
-		AND
-			backup4 = 0
+		
 	</select>
 	
 	<select id="selectUnfinishedLottery" resultType="com.digitalchina.xa.it.model.SingleDoubleGamesInfoDomain">
@@ -104,8 +101,9 @@
 		UPDATE 
 			<include refid="BASE_TABLE"/>
 		SET    
-			nowSumAmount = nowSumAmount + unitPrice,
+			nowSumAmount = nowSumAmount + #{money,jdbcType=INTEGER},
 			backup4 = backup4 + 1
+			nowSumPerson = nowSumPerson+1;
 		WHERE
 			id = #{id,jdbcType=INTEGER}
 	</update>
@@ -126,6 +124,7 @@
 			lotteryTime = #{lotteryTime, jdbcType=TIMESTAMP},
 			winner = #{winner, jdbcType=VARCHAR},
 			winTicket = #{winTicket, jdbcType=VARCHAR},
+			winSumAmount = #{winSumAmount, jdbcType=VARCHAR},
 			backup6 = #{backup6, jdbcType=INTEGER}
 		WHERE
 			id = #{id, jdbcType=INTEGER}

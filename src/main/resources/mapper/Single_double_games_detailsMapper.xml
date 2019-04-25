@@ -8,19 +8,20 @@
 	<sql id="BASE_COLUMN">
 		id,lotteryId,itcode,account,hashcode,ticket,result,winTicket,winReward,buyTime,backup1,backup2,backup3,backup4,backup5
 	</sql>
-	<insert id="insertLotteryBaseInfo" parameterType="com.digitalchina.xa.it.model.TPaidlotteryDetailsDomain">
+	<insert id="insertLotteryBaseInfo" parameterType="com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain">
 		<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
             select @@IDENTITY as id
         </selectKey>
 		INSERT INTO
 			<include refid="BASE_TABLE"/>
 			<trim prefix="(" suffix=")" suffixOverrides=",">
-				lotteryId,itcode,account,hashcode,ticket,result,winTicket,winReward,buyTime,backup1,backup2,backup3,backup4,backup5
+				lotteryId,itcode,account,hashcode,ticket,result,winTicket,winReward,buyTime,backup1,backup2,backup3,backup4,backup5,backup6
 			</trim>
 			<trim prefix="VALUES(" suffix=")" suffixOverrides=",">
 				#{lotteryId, jdbcType=INTEGER},#{itcode, jdbcType=VARCHAR},#{account,jdbcType=VARCHAR},#{hashcode,jdbcType=VARCHAR},
 				#{ticket,jdbcType=VARCHAR},#{result,jdbcType=INTEGER},#{winTicket,jdbcType=VARCHAR},#{winReward,jdbcType=VARCHAR},
-				#{buyTime,jdbcType=TIMESTAMP},#{backup1, jdbcType=VARCHAR},#{backup2, jdbcType=VARCHAR},#{backup3, jdbcType=INTEGER},#{backup4, jdbcType=INTEGER},#{backup5, jdbcType=INTEGER}
+				#{buyTime,jdbcType=TIMESTAMP},#{backup1, jdbcType=VARCHAR},#{backup2, jdbcType=VARCHAR},#{backup3, jdbcType=INTEGER},
+				#{backup4, jdbcType=INTEGER},#{backup5, jdbcType=INTEGER},#{backup6, jdbcType=INTEGER}
 			</trim>
 	</insert>
 	
@@ -66,6 +67,14 @@
 		AND
 			backup3 = 0
 	</select>
+		<select id="selectLotteryDetailsById" resultType="com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			id = #{id,jdbcType=INTEGER}
+	</select>
 	
 	<select id="selectCountByBackup3" resultType="java.lang.Integer">
 		SELECT
@@ -78,6 +87,16 @@
 			backup3 = #{backup3, jdbcType=INTEGER}
 	</select>
 	
+	<select id="selectDetailByBackup3" resultType="com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			lotteryId = #{lotteryId, jdbcType=INTEGER}
+		AND
+			backup3 = #{backup3, jdbcType=INTEGER}
+	</select>
 	
 	<update id="updateDetailAfterLotteryFinished">
 		UPDATE 
@@ -108,5 +127,15 @@
 			backup3 = 3
 		WHERE
 			id = #{id, jdbcType=INTEGER}
-	</update>	
+	</update>
+	<update id="updateTicket">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			ticket = #{ticket, jdbcType=VARCHAR},
+			backup3 = 1
+		WHERE
+			id = #{transactionId, jdbcType=INTEGER}
+	</update>
+	
 </mapper>

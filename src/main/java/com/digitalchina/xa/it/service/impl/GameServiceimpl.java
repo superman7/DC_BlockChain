@@ -34,9 +34,9 @@ public class GameServiceimpl implements GameService{
 	@Autowired
 	private Single_double_games_detailsDao gameDetailsDao;
 	@Override
-	public Boolean updateNowSumAmountAndBackup4(int id) {
+	public Boolean updateNowSumAmountAndBackup4(int id,int money) {
 		try {
-			Integer effectedNumber = single_double_games_lottery_infoDao.updateNowSumAmountAndBackup4(id);
+			Integer effectedNumber = single_double_games_lottery_infoDao.updateNowSumAmountAndBackup4(id,money);
 			System.out.println(effectedNumber);
 			if(effectedNumber > 0) {
 				return true;
@@ -97,17 +97,13 @@ public class GameServiceimpl implements GameService{
 		Web3j web3j = Web3j.build(new HttpService(TConfigUtils.selectIp()));
 		int i = 404;
 		try {
-			SingleDoubleGamesInfoDomain tplid = single_double_games_lottery_infoDao.selectNewOpen(1).get(0);
-			String lastWinner = tplid.getWinner();
-			String lastWinTicket = tplid.getWinTicket();
-			
 			Block winBlock = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, true).send().getResult();
 			BigInteger blockNumber = winBlock.getNumber();
 			System.out.println(blockNumber);
 			String winBlockHash = String.valueOf(winBlock.getHash());
 			System.out.println(winBlockHash);
 			i = winBlockHash.charAt(winBlockHash.length()-1)%2;
-			
+//			i为中奖号码，单或双
 			System.out.println(i);
 			
 //		    List<String> ticketList = single_double_games_detailsDao.generateWinTicketNew1(lotteryId, option);
@@ -132,21 +128,48 @@ public class GameServiceimpl implements GameService{
 		//开奖，根据lotteryId，更新此次参与者的result，winTicket，winReword字段,更新t_paidlottery_info表flag，lotteryTime，winner，winTicket
 		int ticket = generateWinTicketNew(sdid.getId(), sdid.getWinCount(), 0);
 		List<SingleDoubleGamesDetailsDomain> tpddList = single_double_games_detailsDao.selectLotteryDetailsByLotteryId(sdid.getId());
-		String winTickets = "0";
+		String winTickets = String.valueOf(ticket);
 		String winItcodes = "";
+		int winSumAmount = 0;
 		for(int index1 = 0; index1 < tpddList.size(); index1++) {
 			SingleDoubleGamesDetailsDomain sdddTemp = tpddList.get(index1);
-			if(sdddTemp.getTicket().equals(ticket)) {
+			System.out.println(sdddTemp.getId());
+			System.out.println(sdddTemp.getTicket());
+			System.out.println(ticket);
+			if(sdddTemp.getTicket().equals(String.valueOf(ticket))) {
 				int lotteryFinished = single_double_games_detailsDao.updateDetailAfterLotteryFinished(sdddTemp.getId(), 2, winTickets, sdddTemp.getBackup5().toString());
 				sdddTemp.setResult(2);
 				winItcodes +=sdddTemp.getItcode()+"&";
-				String url = TConfigUtils.selectValueByKey("kafka_address") + "game/issueReward";
-				String postParam = "itcode="+sdddTemp.getItcode() + "&turnBalance=" + sdddTemp.getBackup5() + "&transactionDetailId="+sdddTemp.getId();
+				winSumAmount += sdddTemp.getBackup6();
+				String url = TConfigUtils.selectValueByKey("kafka_address") + "/gameKafka/issueReward";
+				String postParam = "itcode="+sdddTemp.getItcode() + "&turnBalance=" + sdddTemp.getBackup6() + "&transactionDetailId="+sdddTemp.getLotteryId()+"&choosed="+sdddTemp.getBackup5();
+				System.out.println(url);
+				System.out.println(postParam);
 				//向kafka发送请求，参数为itcode, transactionId,  金额？， lotteryId？; 产生hashcode，更新account字段，并返回hashcode与transactionId。
 				HttpRequest.sendPost(url, postParam);
+			}else if(sdddTemp.getResult() != 2) {
+				single_double_games_detailsDao.updateDetailAfterLotteryFinished(sdddTemp.getId(), 1, winTickets, "无");
 			}
 		}
-		winItcodes = winItcodes.substring(0, winItcodes.length() - 1);
-		single_double_games_lottery_infoDao.updateAfterLotteryFinished(sdid.getId(),new Timestamp(new Date().getTime()), winItcodes, winTickets,0);
+		try {			
+			System.out.println(winItcodes);
+			winItcodes = winItcodes.substring(0, winItcodes.length() - 1);
+		} catch (StringIndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		int i = single_double_games_lottery_infoDao.updateAfterLotteryFinished(sdid.getId(),new Timestamp(new Date().getTime()), winItcodes ,winTickets,winSumAmount,0);
+		System.out.println(i);
+	}
+
+	@Override
+	public Boolean updateHashcodeAndJudge(String hashcode, int transactionId) {
+		//根据transactionId获取lotteryId
+		SingleDoubleGamesDetailsDomain tpdd = single_double_games_detailsDao.selectLotteryDetailsById(transactionId);
+		int lotteryId = tpdd.getLotteryId();
+		//计算ticket值,更新该用户的ticket值。
+		String ticket = tpdd.getBackup5().toString();
+		single_double_games_detailsDao.updateTicket(ticket, transactionId);			
+		
+		return true;
 	}
 }

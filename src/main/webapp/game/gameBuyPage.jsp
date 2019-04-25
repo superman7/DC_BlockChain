@@ -109,11 +109,7 @@
                 }
 
                 $(".gameDescription").click(function() {
-                	window.location.href = baseUrl + "lotteryIntroduce";
-                });
-
-                $("#inviteDescription").click(function() {
-                    window.location.href = baseUrl + "lotteryInviteIntroduce";
+                	window.location.href = baseUrl + "gameIntroduce";
                 });
 
                 var nowCount;
@@ -165,7 +161,7 @@
                                     if (infoData.typeCode == 0) {
                                        bkImgStr = "lottery_rmb_2.jpg";
                                     } else if (infoData.typeCode == 1) {
-                                       bkImgStr = "lottery_szb_2.jpg";
+                                       bkImgStr = "game1.jpg";
                                     }
                                     $("#bkImg").attr("src", "../img/"+bkImgStr);
                                     changeProgress(infoData.nowSumAmount);
@@ -180,15 +176,15 @@
                                     var innerHtml = "";
                                     if(boughtCount == 0){
                                     	//alert(boughtCount);
-                                        innerHtml = "<div class='aui-list-item-inner' id = 'gameChoose'><div class='aui-list-item-label'>请选择单双</div><div class='aui-list-item-input'><label><input class='aui-radio' type='radio' name='choose' value='1' checked> 单</label><label><input class='aui-radio' type='radio' name='choose' value='2'> 双</label></div></div>"
+                                        innerHtml = "<div class='aui-list-item-inner' id = 'gameChoose'><div class='aui-list-item-input'><label><input class='aui-radio' type='radio' name='choose' value='1' checked> 单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label><label><input class='aui-radio' type='radio' name='choose' value='0'> 双</label></div></div>"
 										+"<button type='button' style='float: left; margin-left: 20%;' class='btn btn-info btn-sm' onClick='buyClick()'>立即抢购</button>";
-                                        innerHtml += "<button type='button' style='float: right; margin-right: 20%;' class='btn btn-info btn-sm' onClick='viewTicket()'>查看夺宝码</button>";
+                                        innerHtml += "<button type='button' style='float: right; margin-right: 20%;' class='btn btn-info btn-sm' onClick='viewTicket()'>查看游戏码</button>";
                                     } else if (boughtCount >= infoData.limitEveryday) {
-                                        innerHtml = "<font style='float: left; margin-left: 15px;'>已达购买上限&nbsp;<strong>" + boughtCount+ "</strong>&nbsp;次</font>" + "<button type='button' style='float: right; margin-right: 15px;' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>";
+                                        innerHtml = "<font style='float: left; margin-left: 15px;'>已达购买上限&nbsp;<strong>" + boughtCount+ "</strong>&nbsp;次</font>" + "<button type='button' style='float: right; margin-right: 15px;' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看游戏码 </button>";
                                     } else if(boughtCount < infoData.limitEveryday) {
                                         innerHtml = "<font style='float: left; margin-left: 20px;'>已购买&nbsp;<strong>" + boughtCount 
                                         + "</strong>&nbsp;次</font>"
-                                        + "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>"
+                                        + "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看游戏码 </button>"
                                         + "<button id='btnBuy' type='button' class='btn btn-info btn-sm' style='float: right; margin-right: 20px;' onClick='buyClick()'>继续购买</button>";
                                     } 
                                     $("#divBottom").html(innerHtml);
@@ -276,7 +272,7 @@
                         return;
                     }
  					var choosed = $("input[name='choose']:checked").val();
- 					alert(choosed+"hahaha");
+ 					//alert(choosed+"hahaha");
                     confirm
                     if(confirm("您确认花费 "+ infoData.unitPrice +"SZB 购买吗？") == true){
                         showDefault("loading");
@@ -288,7 +284,7 @@
 								"itcode" : itcode,
                                 "unitPrice" : infoData.unitPrice,
                                 "lotteryId" : infoData.id,
-                                "backup4" : infoData.backup4
+                                "option" : "0"
                             })},
                             dataType: "text",
                             success: function(data) {
@@ -309,18 +305,18 @@
 		                                        alert("已售罄，请等待开奖!");
 		                                        return;
 		                                    }
-		                                    alert("正在生成夺宝码，请稍后查看");
+		                                    alert("正在生成游戏码，请稍后查看");
 		                                    boughtCount += 1;
 		                                    selfBoughtCount += 1;
 		                                    var htmlStr = "";
 		                                    if (selfBoughtCount >= infoData.limitEveryday) {
 		                                        htmlStr = "<font style='float: left; margin-left: 15px;'>已达购买上限&nbsp;<strong>" + selfBoughtCount 
 		                                            + "</strong>&nbsp;次</font>"
-		                                            + "<button type='button' style='float: right; margin-right: 15px;' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>";
+		                                            + "<button type='button' style='float: right; margin-right: 15px;' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看游戏码 </button>";
 		                                    } else {
 		                                        htmlStr = "<font style='float: left; margin-left: 20px;'>已购买&nbsp;<strong>" + selfBoughtCount 
 		                                            + "</strong>&nbsp;次</font>"
-		                                            + "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>"
+		                                            + "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看游戏码 </button>"
 		                                            + "<button id='btnBuy' type='button' class='btn btn-info btn-sm' style='float: right; margin-right: 20px;' onClick='buyClick()'>继续购买</button>";
 		                                    } 
 		                                    $("#divBottom").html(htmlStr);
@@ -336,97 +332,67 @@
                         });
                     }
                 }
-                //购买选项类抽奖奖票
-                window.buyClickOption = function(option) {
-                    var saleFlag = true;
-                    
+                
+                //点解查看夺宝码按钮
+                window.viewTicket = function() {
+                    showDefault("loading");
                     $.ajax({
                         type: "GET",
-                        url: baseUrl + "selectLotteryInfo",
+                        url: baseUrl + "game/getOne",
                         data: {
-                        	"lotteryId" : infoData.id
+                        	"itcode" : itcode,
+                            "id" : id
                         },
                         dataType: "json",
                         success: function(data) {
-                            if(data.data == "LotteryOver") {
-                                alert("已售罄，请等待开奖!");
-                                saleFlag = false;
-                            }
-                        }
-                    })
-                    $("#gameChoose").show();
- 					var choosed = $("input[name='choose']:checked").val();
- 					//alert(choosed); 
-                    if (!saleFlag) {
-                        return;
-                    }
-                    if (selfBoughtCount >= infoData.limitEveryday) {
-                        alert("已达购买上限");
-                        return;
-                    }
-                    if(confirm("您确认花费 "+ infoData.unitPrice +"SZB 购买吗？") == true){
-                        showDefault("loading");
-                        $.ajax({
-                            type: "GET",
-                            url: baseUrl + "insertLotteryDetails",
-                            data: {
-                            	"itcode" : itcode,
-                                "unitPrice" : infoData.unitPrice,
-                                "lotteryId" : infoData.id,
-                                "option" : option
-                            },
-                            dataType: "json",
-                            success: function(data) {
-                                toast.hide();
-                                if (data.success) {
-                                    if(data.data == "balanceNotEnough") {
-                                        alert("您的余额不足!");
-                                        return;
+                            toast.hide();
+                            if (data.success) {
+                                var detailTemp = data.detailData;
+                                var infoTemp = data.infoData;
+                                if (infoTemp.typeCode - 1 <= 0) {
+                                    if (infoTemp.backup3 != '') {
+                                        var htmlStr1 = "";
+                                        for(var index = 0; index < detailTemp.length; index++) {
+                                            var status = "";
+                                            if(detailTemp[index].backup4 == 0){
+                                                if(detailTemp[index].backup1 == ''){
+                                                    status = '自身购买';
+                                                }
+                                            }
+                                            
+                                            var ticket = detailTemp[index].backup3 == 0 ? "生成中" : detailTemp[index].ticket;
+                                            // htmlStr1 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>"+detailTemp[index].backup2+"</td><td id='tdTicket' style='word-break: break-all;text-align: center;'>"+ticket+"</td>";
+                                            if(detailTemp[index].backup4 == 6 || detailTemp[index].backup4 == 0){
+                                                htmlStr1 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>"+detailTemp[index].hashcode+"</td><td id='tdTicket' style='word-break: break-all;text-align: center;'>"+ticket+"</td><td id='tdOption' style='word-break: break-all;text-align: center;'>"+ status +"</td></tr>";
+                                            }                                        
+                                        }
+                                        $("#modalTbody1").html(htmlStr1);
+                                        $("#transactionModal1").modal('show');
+
+                                    }else{
+                                        var htmlStr = "";
+                                        for(var index = 0; index < detailTemp.length; index++) {
+                                            var ticket = detailTemp[index].backup3 == 0 ? "生成中" : detailTemp[index].ticket;
+                                            htmlStr += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>"+detailTemp[index].hashcode+"</td><td id='tdTicket' style='word-break: break-all;text-align: center;'>"+ticket+"</td></tr>";
+                                        }
+                                        $("#modalTbody").html(htmlStr);
+                                        $("#transactionModal").modal('show');   
                                     }
-                                    if(data.data == "lotteryOver") {
-                                        alert("已售罄，请等待开奖!");
-                                        return;
+                                }else{
+                                    var htmlStr1 = "";
+                                    for(var index = 0; index < detailTemp.length; index++) {
+                                        var option = "";
+                                        var ticket = detailTemp[index].backup3 == 0 ? "生成中" : detailTemp[index].ticket;
+                                        htmlStr1 += "<tr><td id='tdTime' style='word-break: break-all;text-align: center;'>"+detailTemp[index].hashcode+"</td><td id='tdTicket' style='word-break: break-all;text-align: center;'>"+ticket+"</td><td id='tdOption' style='word-break: break-all;text-align: center;'>"+ option +"</td></tr>";
                                     }
-                                    alert("正在生成夺宝码，请稍后查看");
-                                    boughtCount += 1;
-
-                                    //选项抽奖
-                                    var divBottom1Html = "";
-                                    var divBottom2Html = "";
-                                    var divBottom3Html = "";
-
-                                    if (boughtCount >= infoData.limitEveryday) {
-                                        divBottom2Html = "<font style='text-align: center;color: gray;'>已达购买上限&nbsp;<strong>" + boughtCount 
-                                            + "</strong>&nbsp;次</font>";
-                                        divBottom3Html = "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>";
-                                        $("#divBottom1").hide();
-                                        $("#divBottom2").show();
-                                        $("#divBottom3").show();
-
-                                        $("#divBottom2").html(divBottom1Html);
-                                        $("#divBottom2").html(divBottom2Html);
-                                        $("#divBottom3").html(divBottom3Html);
-                                    } else {
-                                        divBottom1Html = "<font style='text-align: center;color: gray;'>已购买&nbsp;<strong>" + boughtCount 
-                                            + "</strong>&nbsp;次</font>";
-                                        divBottom2Html = "<button type='button' class='btn btn-info btn-sm' onClick='viewTicket()'> 查看夺宝码 </button>";
-                                        divBottom3Html = "<button type='button' class='btn btn-info btn-sm' onClick='buyClickOption(1)'>" + infoData.backup1 + "</button>&nbsp;&nbsp;&nbsp;&nbsp;"
-                                            + "<button type='button' class='btn btn-info btn-sm' onClick='buyClickOption(2)'>" + infoData.backup2 + "</button>";
-                                        $("#divBottom1").html(divBottom1Html);
-                                        $("#divBottom2").html(divBottom2Html);
-                                        $("#divBottom3").html(divBottom3Html);
-
-                                        $("#divBottom1").show();
-                                        $("#divBottom2").show();
-                                        $("#divBottom3").show();
-                                    }
-
-                                    $("#strHaved1").text(nowCount + 1);
+                                    $("#modalTbody1").html(htmlStr1);
+                                    $("#transactionModal1").modal('show');
                                 }
                             }
-                        });
-                    }
+                        }
+                    });
                 }
+                
                 //查看结果
                 window.viewResult =function() {
                     var numberArr = infoData.winTicket.split("&");
@@ -499,55 +465,11 @@
                         <div id="divBottom" style="margin-top: 5px; margin-bottom: 5px;height: 30px;vertical-align: middle;">
                         </div>
                         <div style="margin-top: 5px; margin-bottom: 5px;height: 30px;vertical-align: middle;">
-                            <button type='button' class='btn btn-link gameDescription'>夺宝玩法简介</button>
+                            <button type='button' class='btn btn-link gameDescription'>单双游戏玩法简介</button>
                         </div>
                         </div>
                     </div>
                 </div>
-                <!-- typecode为0/1的显示方式end -->
-
-                <!-- typecode为2的显示方式 -->
-                <div id='optionLottery' class="col-xs-12 col-md-12" align="center" style="margin-top: 5%;display: none;">
-                    <div style="border: 1px solid #EDEDED;">
-                        <img id="bkImg1" src=""  class="img-responsive center-block" style="padding-top: 1px;padding-bottom: 5px;">
-                        <div style="border: 1px solid #EDEDED;border-top: none;">
-                            <font id="fontReword1" style="text-align: center;"></font>
-                            <div class="progress"></div>
-                            <font style="text-align: center;color: gray;">当前累计参与&nbsp;<strong id="strHaved1"></strong>&nbsp;人次</font>
-                        </div>
-                        <div id="divBottom1" style="margin-top: 5px; margin-bottom: 5px;height: 30px;vertical-align: middle;">
-                        </div>
-                        <div id="divBottom2" style="margin-top: 5px; margin-bottom: 5px;height: 30px;vertical-align: middle;">
-                        </div>
-                        <div id="divBottom3" style="margin-top: 5px; margin-bottom: 5px;height: 30px;vertical-align: middle;">
-                        </div>
-                        <div style="margin-top: 5px; margin-bottom: 5px;height: 30px;vertical-align: middle;">
-                            <button type='button' class='btn btn-link gameDescription'>夺宝玩法简介</button>
-                        </div>
-                    </div>
-                </div>
-                <!-- typecode为2的显示方式end -->
-                <!-- 带邀请好友功能的显示方式 -->
-                <div id='inviteLottery' class="col-xs-12 col-md-12" align="center" style="margin-top: 5%;display: none;">
-                    <div style="border: 1px solid #EDEDED;">
-                        <img id="bkImg2" src=""  class="img-responsive center-block" style="padding-top: 1px;padding-bottom: 5px;">
-                        <div style="border: 1px solid #EDEDED;border-top: none;">
-                            <font id="fontReword2" style="text-align: center;"></font><br>
-                            <!-- <div class="progress"></div> -->
-                            <font style="text-align: center;color: gray;">当前累计参与&nbsp;<strong id="strHaved2"></strong>&nbsp;人次</font>
-                        </div>
-                        <div id="divBottom21" style="margin-top: 5px; margin-bottom: 5px;height: 30px;vertical-align: middle;">
-                        </div>
-                        <div id="divBottom22" style="margin-top: 5px; margin-bottom: 5px;height: 30px;vertical-align: middle;">
-                        </div>
-                        <div id="divBottom23" style="margin-top: 5px; margin-bottom: 5px;height: 30px;vertical-align: middle;">
-                        </div>
-                        <div style="margin-top: 5px; margin-bottom: 5px;height: 30px;vertical-align: middle;">
-                            <button type='button' class='btn btn-link gameDescription'>夺宝玩法简介</button>
-                        </div>
-                    </div>
-                </div>
-                <!-- 带邀请好友功能的显示方式end -->
 
                 <div id="fannlManager" class="col-xs-12 col-md-12" style='margin-top: 1%;' hidden="hidden" align="center">
                     <div style="border: 1px solid #EDEDED;">
@@ -573,7 +495,7 @@
                             <thead>
                                 <tr>
                                   <th style="text-align: center;color: gray;font-size: 80%;">购买时间</th>
-                                  <th style="text-align: center;color: gray;font-size: 80%;">夺宝码</th>
+                                  <th style="text-align: center;color: gray;font-size: 80%;">游戏码</th>
                                 </tr>
                             </thead>
                             <tbody id="modalTbody">
@@ -599,7 +521,7 @@
                             <thead>
                                 <tr>
                                   <th style="text-align: center;color: gray;font-size: 80%;">购买时间</th>
-                                  <th style="text-align: center;color: gray;font-size: 80%;">夺宝码</th>
+                                  <th style="text-align: center;color: gray;font-size: 80%;">游戏码</th>
                                   <th style="text-align: center;color: gray;font-size: 80%;">状态</th>
                                 </tr>
                             </thead>
@@ -631,7 +553,7 @@
                             </tbody>
                         </table>
                         <table class="table table-condensed" style="table-layout: fixed;">
-                            <caption id="tabCaption" style="word-break: break-all;text-align: center;">我的夺宝码</caption>
+                            <caption id="tabCaption" style="word-break: break-all;text-align: center;">我的游戏码</caption>
                             <tbody id="modalMine">
                             </tbody>
                         </table>
@@ -644,15 +566,6 @@
                 </div>
             </div>
         </div>
-<!--             <div class="aui-list-item-inner" hidden="hidden" id = "gameChoose">
-                <div class="aui-list-item-label">
-                    	请选择单双：
-                </div>
-                <div class="aui-list-item-input">
-                    <label><input class="aui-radio" type="radio" name="choose" value="1" checked> 单</label>
-                    <label><input class="aui-radio" type="radio" name="choose" value="2"> 双</label>
-                </div>
-            </div>
- -->            
+
     </body>
 </html>

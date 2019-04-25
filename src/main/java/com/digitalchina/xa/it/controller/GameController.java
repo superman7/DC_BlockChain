@@ -59,7 +59,6 @@ public class GameController {
 		String jsonValue = param.trim();
 		System.out.println(jsonValue);
 		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
-//		System.out.println("0000000");
 		System.out.println(modelMap.get("success"));
 //		if (!(boolean)modelMap.get("success")) {
 //			return modelMap;
@@ -67,17 +66,23 @@ public class GameController {
 		JSONObject jsonObj = JSONObject.parseObject((String) modelMap.get("data"));
 		System.out.println(jsonObj);
 		Integer game_no = Integer.valueOf(jsonObj.getString("lotteryId"));
-		Integer backup4 = Integer.valueOf(jsonObj.getString("backup4"));
+		Integer backup4 = Integer.valueOf(jsonObj.getString("option"));
 		String itcode = jsonObj.getString("itcode");
 		Integer choosed = Integer.valueOf(jsonObj.getString("choosed"));
+		System.out.println(backup4);
 		System.out.println(game_no+backup4+itcode+choosed+"123123123123");
-		BigInteger turnBalance = BigInteger.valueOf( Long.valueOf(jsonObj.getString("unitPrice")) * 10000000000000000L);
+		int money1 = Integer.valueOf(jsonObj.getString("money"));
+		BigInteger turnBalance = BigInteger.valueOf( Long.valueOf(jsonObj.getString("money")) * 10000000000000000L);
+		int money = turnBalance.intValue();
+		System.out.println(turnBalance);
 		//余额判断
 		try {
 			Web3j web3j = Web3j.build(new HttpService(TConfigUtils.selectIp()));
 			BigInteger balance = web3j.ethGetBalance(ethAccountService.selectDefaultEthAccount(itcode).getAccount(),DefaultBlockParameterName.LATEST).send().getBalance().divide(BigInteger.valueOf(10000000000000000L));
-			if (Double.valueOf(jsonObj.getString("turnBalance"))>Double.valueOf(balance.toString())-10) {
+			System.out.println(balance);
+			if (Double.valueOf(jsonObj.getString("monry"))>Double.valueOf(balance.toString())-10) {
 				modelMap.put("data", "以太坊账户余额不足");
+				return modelMap;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -85,17 +90,18 @@ public class GameController {
 		}
 		synchronized (this) {
 			
-		//更新表奖池金额 backup4（待确认交易数）
-		gameService.updateNowSumAmountAndBackup4(game_no);
+		//更新表奖池金额,参加人数 backup4（待确认交易数）
+		gameService.updateNowSumAmountAndBackup4(game_no,money1);
 		}
 	    //向detail表中插入信息，参数为lotteryId,itcode,result(0),buytime
-		SingleDoubleGamesDetailsDomain sdgd = new SingleDoubleGamesDetailsDomain(game_no, itcode, "", "", "", 0, "", "", new Timestamp(new Date().getTime()), "", "", 0,backup4,choosed);
+		SingleDoubleGamesDetailsDomain sdgd = new SingleDoubleGamesDetailsDomain(game_no, itcode, "", "", "", 0, "", "", new Timestamp(new Date().getTime()), "", "", 0,backup4,choosed,money1);
 		int transactionId = gameService.insertGameBaseInfo(sdgd);
 		System.out.println("transactionId"+transactionId);
 		//向kafka发送请求，参数为itcode，transactionId，金额？，lotteryId，产生hashcode，更新account字段，并返回hashcode与transactionId。
-		String url = TConfigUtils.selectValueByKey("kafka_address")+"/game/buyTicket";
+		String url = TConfigUtils.selectValueByKey("kafka_address")+"/gameKafka/buyTicket";
 		System.out.println(url);
-		String postParam = "itcode="+itcode+"&turnBalance="+turnBalance.toString()+"&transactionId="+transactionId+"&choosed"+choosed;
+		String postParam = "itcode="+itcode+"&turnBalance="+turnBalance.toString()+"&transactionId="+transactionId+"&choosed="+choosed;
+		System.out.println(postParam);
 		HttpRequest.sendPost(url, postParam);
 		//kafka那边更新account和hashcode
 		//定时任务，查询到
@@ -123,7 +129,9 @@ public class GameController {
 		//查询多选项的抽奖
 //		List<TPaidlotteryInfoDomain> otherTpidList = tPaidlotteryService.selectOtherTpids();
 		List<SingleDoubleGamesInfoDomain> newOpenList = gameService.selectNewOpen(Integer.valueOf(TConfigUtils.selectValueByKey("game_show_finsh_size")));
-		
+//		for (SingleDoubleGamesInfoDomain singleDoubleGamesInfoDomain : newOpenList) {
+//			System.out.println(singleDoubleGamesInfoDomain.getNowSumPerson());
+//		}
 		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		for(SingleDoubleGamesInfoDomain tpid : newOpenList){
 	        tpid.setBackup1(sdf.format(tpid.getLotteryTime()));
@@ -134,7 +142,6 @@ public class GameController {
 //		modelMap.put("hbData", JSONObject.toJSON(hbTpidList));
 //		modelMap.put("otherData", JSONObject.toJSON(otherTpidList));
 		modelMap.put("newOpen", JSONObject.toJSON(newOpenList));
-		
 		return modelMap;
 	}
 	
@@ -146,14 +153,12 @@ public class GameController {
 			@RequestParam(name = "id", required = true) String id){
 		 int id1 = Integer.parseInt(id); 
 		Map<String, Object> modelMap = new HashMap<String, Object>();		
+//		System.out.println(111);
 		System.out.println(itcode+id);
 		SingleDoubleGamesInfoDomain tpid = gameService.selectLotteryInfoById(id1);
 		List<SingleDoubleGamesDetailsDomain> tpddList = gameService.selectGameDetailsByItcodeAndLotteryId(itcode, id1);
 		
-		for(SingleDoubleGamesDetailsDomain tpldd : tpddList){
-	        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			tpldd.setHashcode(sdf.format(tpldd.getBuyTime()));
-		}
+		
 		modelMap.put("success", true);
 		modelMap.put("infoData", JSONObject.toJSON(tpid));
 		modelMap.put("detailData", JSONObject.toJSON(tpddList));

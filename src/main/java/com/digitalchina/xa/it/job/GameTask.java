@@ -75,7 +75,7 @@ public class GameTask {
 				}
 				if(!tr.getBlockHash().contains("00000000")) {
 					System.out.println("更新ID为" + wtdList.get(i).getId() + "的交易状态为已完成");
-					tPaidlotteryService.updateHashcodeAndJudge(transactionHash, wtdList.get(i).getId());
+					gameService.updateHashcodeAndJudge(transactionHash, wtdList.get(i).getId());
 				}
 			}
 		} catch (InterruptedException e) {
@@ -113,14 +113,18 @@ public class GameTask {
 
 	//定时处理需要开奖的信息
 	@Transactional
-	@Scheduled(cron="20,50 * * * * ?")
+//	@Scheduled(cron="* */5 * * * ?")
+	@Scheduled(fixedRate=10000)
 	public void runLottery() throws IOException{
+		System.out.println("处理需要开奖的信息");
 		Web3j web3j = Web3j.build(new HttpService(ip[new Random().nextInt(5)]));
 		Block winBlock = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, true).send().getResult();
 		BigInteger blockNumber = winBlock.getNumber();
-		int mod = blockNumber.mod(new BigInteger("500")).intValue();
+		System.out.println(blockNumber);
+		int mod = blockNumber.mod(new BigInteger("100")).intValue();
+//		System.out.println(mod);
 		if (mod == 0) {
-			//开奖条件：1.flag = 0；2.winSumAmount = nowSumAmount；3.backup4 = 0;4.区块链区块个数500整除
+			//开奖条件：1.flag = 0；2.winSumAmount = nowSumAmount；3.backup4 = 0;4.区块链区块个数100整除
 			List<SingleDoubleGamesInfoDomain> tpidList0 = single_double_games_lottery_infoDao.selectRunLottery();
 			if(tpidList0.size() == 0) {
 				return;
@@ -132,36 +136,38 @@ public class GameTask {
 		}
 	}
 	
-	//将开奖信息更新为待开奖
-	@Transactional
-	@Scheduled(cron="5,35 * * * * ?")
-	public void lotteryControl(){
-		//查询未结束的抽奖
-		List<SingleDoubleGamesInfoDomain> tpidList = single_double_games_lottery_infoDao.selectUnfinishedLottery();
-		if(tpidList.size() == 0) {
-			return;
-		}
-		for(int index = 0; index < tpidList.size(); index++) {
-			SingleDoubleGamesInfoDomain tpid = tpidList.get(index);
-			//查询抽奖details中，区块链交易已确认的个数
-			int count1 = single_double_games_detailsDao.selectCountByBackup3(tpid.getId(), 1);
-			if(count1 >= (tpid.getWinSumAmount() / tpid.getUnitPrice())) {
-			single_double_games_lottery_infoDao.updateBackup4To0(tpid.getId());
-			}
-		}
-	}
+//	//将开奖信息更新为待开奖
+//	@Transactional
+////	@Scheduled(cron="5,35 * * * * ?")
+//	@Scheduled(fixedRate=10000)
+//	public void lotteryControl(){
+//		System.out.println("将开奖信息更新为待开奖");
+//		//查询未结束的抽奖
+//		List<SingleDoubleGamesInfoDomain> tpidList = single_double_games_lottery_infoDao.selectUnfinishedLottery();
+//		if(tpidList.size() == 0) {
+//			return;
+//		}
+//		for(int index = 0; index < tpidList.size(); index++) {
+//			SingleDoubleGamesInfoDomain tpid = tpidList.get(index);
+//			//查询抽奖details中，区块链交易已确认的个数
+//			int count1 = single_double_games_detailsDao.selectCountByBackup3(tpid.getId(), 1);
+//			if(count1 >= (tpid.getWinSumAmount() / tpid.getUnitPrice())) {
+//			single_double_games_lottery_infoDao.updateBackup4To0(tpid.getId());
+//			}
+//		}
+//	}
 	
 	//创建神州币抽奖
 	@Transactional
 	@Scheduled(fixedRate=60000)
 	public void lotterySZBCreate(){
-		System.err.println("插入新的SZB抽奖信息...");
-		List<TPaidlotteryInfoDomain> tpidList = tPaidlotteryInfoDAO.selectUnfinishedSZBLottery();
+		System.err.println("插入新的SZB游戏信息...");
+		List<SingleDoubleGamesInfoDomain> tpidList = single_double_games_lottery_infoDao.selectUnfinishedLottery();
 		if(tpidList.size() > 0) {
 			return;
 		}
 		TPaidlotteryInfoDomain tpid = new TPaidlotteryInfoDomain();
-		List<TConfigDomain> tconfigList = tconfigDAO.selectConfigByExtra("LotterySzbInfo");
+		List<TConfigDomain> tconfigList = tconfigDAO.selectConfigByExtra("GameSzbInfo");
 		String lotteryInfo = tconfigList.get((int) (Math.random() * tconfigList.size())).getCfgValue();
 		
 		String[] infoList = lotteryInfo.split("##");
@@ -171,7 +177,7 @@ public class GameTask {
 		tpid.setWinSumAmount(Integer.valueOf(infoList[2]));
 		tpid.setWinSumPerson(Integer.valueOf(infoList[3]));
 		tpid.setReward(infoList[4]);
-		tpid.setUnitPrice(Integer.valueOf(infoList[5]));
+		//tpid.setUnitPrice(Integer.valueOf(infoList[5]));
 		tpid.setLimitEveryday(Integer.valueOf(infoList[6]));
 		tpid.setWinCount(Integer.valueOf(infoList[7]));
 		

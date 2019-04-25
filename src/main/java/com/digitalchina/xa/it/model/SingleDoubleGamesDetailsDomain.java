@@ -34,10 +34,11 @@ public class SingleDoubleGamesDetailsDomain {
 	    
 	    private Integer backup5;
 	    
+	    private Integer backup6;
 	    public SingleDoubleGamesDetailsDomain(){
 	    	
 	    }
-	    public SingleDoubleGamesDetailsDomain(Integer lotteryId, String itcode, String account, String hashcode, String ticket, Integer result, String winTicket, String winReward, Timestamp buyTime, String backup1, String backup2, Integer backup3, Integer backup4,Integer backup5) {
+	    public SingleDoubleGamesDetailsDomain(Integer lotteryId, String itcode, String account, String hashcode, String ticket, Integer result, String winTicket, String winReward, Timestamp buyTime, String backup1, String backup2, Integer backup3, Integer backup4,Integer backup5,Integer backup6) {
 	    	this.lotteryId = lotteryId;
 	    	this.itcode = itcode;
 	    	this.account = account;
@@ -52,9 +53,11 @@ public class SingleDoubleGamesDetailsDomain {
 	    	this.backup3 = backup3;
 	    	this.backup4 = backup4;
 	    	this.backup5 = backup5;
+	    	this.backup6 = backup6;
 	    }
 	    
-	    public SingleDoubleGamesDetailsDomain(Integer lotteryId, String itcode, String account, String hashcode, String ticket, Integer result, String winTicket, String winReward, Timestamp buyTime) {
+	    
+		public SingleDoubleGamesDetailsDomain(Integer lotteryId, String itcode, String account, String hashcode, String ticket, Integer result, String winTicket, String winReward, Timestamp buyTime) {
 	    	this.lotteryId = lotteryId;
 	    	this.itcode = itcode;
 	    	this.account = account;
@@ -184,6 +187,12 @@ public class SingleDoubleGamesDetailsDomain {
 		
 		public void setBackup5(Integer backup5) {
 			this.backup5 = backup5;
+		}
+		public Integer getBackup6() {
+			return backup6;
+		}
+		public void setBackup6(Integer backup6) {
+			this.backup6 = backup6;
 		}
 		
 		

@@ -9,8 +9,8 @@ import com.digitalchina.xa.it.model.SingleDoubleGamesInfoDomain;
 import com.digitalchina.xa.it.model.TPaidlotteryInfoDomain;
 
 public interface GameService {
-	//更新目前奖池和参与人员个数
-	Boolean updateNowSumAmountAndBackup4(int id);
+	//更新目前奖池和待确认人员个数
+	Boolean updateNowSumAmountAndBackup4(int id,int money);
 	int insertGameBaseInfo(SingleDoubleGamesDetailsDomain singleDoubleGamesDetailsDomain);
 	//获取未开奖游戏列表
 	SingleDoubleGamesInfoDomain selectOneSmbTpid();
@@ -24,5 +24,7 @@ public interface GameService {
 	int  generateWinTicketNew(int lotteryId, int winCount, int option);
 	//定時任務自動開獎
 	void runALottery(SingleDoubleGamesInfoDomain sdid);
+	//交易成功后更新hashcode，并判断是否开奖
+	Boolean updateHashcodeAndJudge(String hashcode, int transactionId);
 	 
 }

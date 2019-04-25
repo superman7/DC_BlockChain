@@ -94,26 +94,16 @@
                 //     setTimeout(function(){
                 //         toast.hide();
                 //     }, 3000)
-                // });
-
-                
-                
-
+                // })
                 //
-                window.showLotteryDetail = function(id) {
-                	$.ajax({
-                        type: "GET",
-                        url: "/wallet/getCheckUp.jsp",
-                        data: {"jsonStr" : JSON.stringify({
-                            "itcode" : itcode,
-                            "id" : id
-                        })},
-                        dataType: "text",
-                        success: function(data) {
+                window.showLotteryDetail = function(id) {   	
 		                    $.ajax({
 		                        type: "GET",
 		                        url: "/game/getOne",
-		                        data: {"param" : data},
+		                        data: {
+		                        	"itcode" : itcode,
+		                            "id" : id
+		                        },
 		                        dataType: "json",
 		                        success: function(data) {
 		                            if (data.success) {
@@ -167,9 +157,7 @@
 		                            }
 		                        }
 		                    });
-		                        	
-                        }
-                	});
+
                 }
                 //alert(itcode);
                 //发送请求，获取夺宝信息，查看该用户是否参与此次夺宝，若参与，展示夺宝号码
@@ -219,7 +207,7 @@
               	//进入单次抽奖详情页面
                 window.clickToDetail = function(id) {
                     /* window.location.href="/mobile/plugin/dch/smbTest/lottery/lotteryBuyPage.jsp?itcode="+itcode+"&id="+id; */
-                    window.location.href = "/game/gameBuyPage.jsp?itcode="+itcode+"&id="+id;
+                    window.location.href = "/game/gameBuy.jsp?itcode="+itcode+"&id="+id;
                 }
               	
                 $("#introduce").click(function() {
