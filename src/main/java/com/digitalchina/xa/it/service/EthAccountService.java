@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.digitalchina.xa.it.model.EthAccountDomain;
+import com.digitalchina.xa.it.util.ResultUtil;
 import com.github.pagehelper.PageInfo;
 
 public interface EthAccountService {
@@ -20,6 +21,8 @@ public interface EthAccountService {
 	String selectKeystoreByAccount(EthAccountDomain ethAccountDomain);
 	
 	String selectKeystoreByItcode(String itcode);
+	
+	ResultUtil selectBackup1ByBackup2(String username, String pwd);
 	
 	Boolean insertItcodeAndAccount(EthAccountDomain ethAccountDomain);
 	

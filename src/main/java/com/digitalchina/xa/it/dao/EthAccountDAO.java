@@ -19,9 +19,11 @@ public interface EthAccountDAO {
 	String selectKeystoreByAccount(EthAccountDomain ethAccountDomain);
 	
 	String selectKeystoreByItcode(@Param("itcode")String itcode);
+	//通过username(backup2)查找backup1
+	EthAccountDomain selectBackup1ByBackup2(@Param("username")String username);
 	
 	int insert(EthAccountDomain ethAccountDomain);
-	
+//	插入itcode+account+username(backup2)+password(backup1)
 	int insertItcodeAndAccount(EthAccountDomain ethAccountDomain);
 	
 	int updateDefaultBalance(String itcode, String status, BigDecimal balance);

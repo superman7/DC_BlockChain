@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digitalchina.xa.it.dao.Single_double_games_detailsDao" >
+	<sql id="BASE_TABLE">
+		single_double_games_details
+	</sql>
+
+	<sql id="BASE_COLUMN">
+		id,lotteryId,itcode,account,hashcode,ticket,result,winTicket,winReward,buyTime,backup1,backup2,backup3,backup4,backup5
+	</sql>
+	<insert id="insertLotteryBaseInfo" parameterType="com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain">
+		<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+            select @@IDENTITY as id
+        </selectKey>
+		INSERT INTO
+			<include refid="BASE_TABLE"/>
+			<trim prefix="(" suffix=")" suffixOverrides=",">
+				lotteryId,itcode,account,hashcode,ticket,result,winTicket,winReward,buyTime,backup1,backup2,backup3,backup4,backup5,backup6
+			</trim>
+			<trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+				#{lotteryId, jdbcType=INTEGER},#{itcode, jdbcType=VARCHAR},#{account,jdbcType=VARCHAR},#{hashcode,jdbcType=VARCHAR},
+				#{ticket,jdbcType=VARCHAR},#{result,jdbcType=INTEGER},#{winTicket,jdbcType=VARCHAR},#{winReward,jdbcType=VARCHAR},
+				#{buyTime,jdbcType=TIMESTAMP},#{backup1, jdbcType=VARCHAR},#{backup2, jdbcType=VARCHAR},#{backup3, jdbcType=INTEGER},
+				#{backup4, jdbcType=INTEGER},#{backup5, jdbcType=INTEGER},#{backup6, jdbcType=INTEGER}
+			</trim>
+	</insert>
+	
+	<select id="selectGameDetailsByItcodeAndLotteryId" resultType="com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			itcode = #{itcode,jdbcType=VARCHAR}
+		AND
+			lotteryId = #{lotteryId,jdbcType=INTEGER}
+	</select>
+	
+	<select id="generateWinTicketNew1" resultType="java.lang.String">
+		SELECT 
+			ticket 
+		FROM 
+			<include refid="BASE_TABLE"/> 
+		WHERE 
+			lotteryId = #{lotteryId, jdbcType=INTEGER} 
+			AND backup3 = 1 
+			AND backup4 = #{backup4, jdbcType=INTEGER}
+		ORDER BY 
+			ticket
+		DESC; 
+	</select>
+	<select id="selectLotteryDetailsByLotteryId" resultType="com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			lotteryId = #{lotteryId,jdbcType=INTEGER}
+	</select>
+	<select id="selectLotteryDetailsWhereHashIsNotNullAndBackup3Is0" resultType="com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			hashcode &lt;&gt; ''
+		AND
+			backup3 = 0
+	</select>
+		<select id="selectLotteryDetailsById" resultType="com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<select id="selectCountByBackup3" resultType="java.lang.Integer">
+		SELECT
+			COUNT(id)
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			lotteryId = #{lotteryId, jdbcType=INTEGER}
+		AND
+			backup3 = #{backup3, jdbcType=INTEGER}
+	</select>
+	
+	<select id="selectDetailByBackup3" resultType="com.digitalchina.xa.it.model.SingleDoubleGamesDetailsDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			lotteryId = #{lotteryId, jdbcType=INTEGER}
+		AND
+			backup3 = #{backup3, jdbcType=INTEGER}
+	</select>
+	
+	<update id="updateDetailAfterLotteryFinished">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			result = #{result, jdbcType=INTEGER},
+			winTicket = #{winTicket, jdbcType=VARCHAR},
+			winReward = #{winReward, jdbcType=VARCHAR}
+		WHERE
+			id = #{id, jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateLotteryDetailsWhereTimeOut">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			backup3 = 2,
+			ticket = '交易未成功写入区块链。'
+		WHERE
+			(hashcode = '0x0' OR (hashcode = '' AND date_add(buyTime, interval 10 MINUTE) &lt;=now()))
+		AND
+			backup3 = 0
+	</update>
+	<update id="updateBackup3From2To3">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			backup3 = 3
+		WHERE
+			id = #{id, jdbcType=INTEGER}
+	</update>
+	<update id="updateTicket">
+		UPDATE 
+			<include refid="BASE_TABLE"/>
+		SET    
+			ticket = #{ticket, jdbcType=VARCHAR},
+			backup3 = 1
+		WHERE
+			id = #{transactionId, jdbcType=INTEGER}
+	</update>
+	
+</mapper>

@@ -73,6 +73,14 @@
 		AND
 			available = 3
 	</select>
+	<select id="selectBackup1ByBackup2" parameterType="java.lang.String" resultType="com.digitalchina.xa.it.model.EthAccountDomain">
+		SELECT
+			<include refid="BASE_COLUMN"/>
+		FROM
+			<include refid="BASE_TABLE"/>
+		WHERE
+			backup2 = #{username,jdbcType=VARCHAR}
+	</select>
   	
   	<insert id="insert" parameterType="com.digitalchina.xa.it.model.EthAccountDomain">
 		INSERT INTO
@@ -89,10 +97,10 @@
 		INSERT INTO
 			<include refid="BASE_TABLE"/>
 			<trim prefix="(" suffix=")" suffixOverrides=",">
-				itcode,account
+				itcode,account,backup1,backup2
 			</trim>
 			<trim prefix="VALUES(" suffix=")" suffixOverrides=",">
-				#{itcode, jdbcType=VARCHAR},#{account, jdbcType=VARCHAR}
+				#{itcode, jdbcType=VARCHAR},#{account, jdbcType=VARCHAR},#{backup1, jdbcType=VARCHAR},#{backup2, jdbcType=VARCHAR}
 			</trim>
 	</insert>
   

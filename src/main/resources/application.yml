@@ -1,5 +1,9 @@
 server:
   port: 8088
+  servlet:
+    jsp:
+      init-parameters:
+        development: true
 
 spring:
     mvc:
@@ -18,6 +22,7 @@ spring:
           driver-class-name: com.mysql.jdbc.Driver
           #基本属性
           url: jdbc:mysql://10.0.6.44:3306/dc_blockchain?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+          #url: jdbc:mysql://10.0.6.44:3306/dc_blockchain?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
           username: appuser
           password: 123456
           #配置初始化大小/最小/最大
@@ -37,6 +42,7 @@ spring:
           #打开PSCache，并指定每个连接上PSCache的大小。oracle设为true，mysql设为false。分库分表较多推荐设置为false
           pool-prepared-statements: false
           max-pool-prepared-statement-per-connection-size: 20
+          
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml

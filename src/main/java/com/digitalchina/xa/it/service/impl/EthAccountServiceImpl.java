@@ -16,6 +16,7 @@ import org.web3j.protocol.http.HttpService;
 import com.digitalchina.xa.it.dao.EthAccountDAO;
 import com.digitalchina.xa.it.model.EthAccountDomain;
 import com.digitalchina.xa.it.service.EthAccountService;
+import com.digitalchina.xa.it.util.ResultUtil;
 import com.digitalchina.xa.it.util.TConfigUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -224,5 +225,28 @@ public class EthAccountServiceImpl implements EthAccountService {
 	@Override
 	public EthAccountDomain selectDefaultEthAccount(String itcode) {
 		return ethAccountDAO.selectDefaultEthAccount(itcode);
+	}
+	/**
+	 * @api {select} /login [登录判别]
+	 */
+	@Override
+	public ResultUtil selectBackup1ByBackup2(String username,String pwd) {
+		ResultUtil result = new ResultUtil();
+		EthAccountDomain eth = ethAccountDAO.selectBackup1ByBackup2(username);
+		if ( eth == null ) {
+			System.out.println("账号不存在");
+			result.setStatus(1);
+			result.setMsg("输入账号不存在请注册");
+			return result;
+		}
+
+		if (!(eth.getBackup1().equals(pwd))) {
+			result.setStatus(2);
+			result.setMsg("密码错误");
+			return result;
+		}
+		result.setStatus(0);
+		result.setData(eth.getItcode());
+		return result;
 	}
 }
