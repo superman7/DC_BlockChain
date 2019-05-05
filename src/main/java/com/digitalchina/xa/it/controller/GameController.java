@@ -80,7 +80,7 @@ public class GameController {
 			Web3j web3j = Web3j.build(new HttpService(TConfigUtils.selectIp()));
 			BigInteger balance = web3j.ethGetBalance(ethAccountService.selectDefaultEthAccount(itcode).getAccount(),DefaultBlockParameterName.LATEST).send().getBalance().divide(BigInteger.valueOf(10000000000000000L));
 			System.out.println(balance);
-			if (Double.valueOf(jsonObj.getString("monry"))>Double.valueOf(balance.toString())-10) {
+			if (money1>balance.intValue()-10) {
 				modelMap.put("data", "以太坊账户余额不足");
 				return modelMap;
 			}

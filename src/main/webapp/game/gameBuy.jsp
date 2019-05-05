@@ -281,7 +281,7 @@
                 	alert("账户金额不足请及时充值");
                 	return;
                 }
-                if(Number(money)>Number(balance)){
+                if(Number(money)>Number(balance)||Number(money)<=0){
                 	alert("请输入合法的金额");
             		return;    
             	}
@@ -305,7 +305,7 @@
                 	alert("账户金额不足请及时充值");
                 	return;
                 }
-                if(Number(money)>Number(balance)){
+                if(Number(money)>Number(balance)||Number(money)<=0){
                 	alert("请输入合法的金额");
             		return;    
             	}

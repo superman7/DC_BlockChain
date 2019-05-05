@@ -102,8 +102,8 @@
 			<include refid="BASE_TABLE"/>
 		SET    
 			nowSumAmount = nowSumAmount + #{money,jdbcType=INTEGER},
-			backup4 = backup4 + 1
-			nowSumPerson = nowSumPerson+1;
+			backup4 = backup4 + 1,
+			nowSumPerson = nowSumPerson+1
 		WHERE
 			id = #{id,jdbcType=INTEGER}
 	</update>
