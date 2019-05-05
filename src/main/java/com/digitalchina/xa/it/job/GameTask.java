@@ -32,7 +32,7 @@ import com.digitalchina.xa.it.service.TPaidlotteryService;
 
 import scala.util.Random;
 
-@Component
+//@Component
 public class GameTask {
 	@Autowired
 	private TConfigDAO tconfigDAO;

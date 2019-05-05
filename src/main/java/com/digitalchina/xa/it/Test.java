@@ -5,19 +5,24 @@ package com.digitalchina.xa.it;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.sql.Array;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthBlock.Block;
 import org.web3j.protocol.http.HttpService;
 
+import com.alibaba.fastjson.JSONObject;
 import com.digitalchina.xa.it.controller.GameController;
 import com.digitalchina.xa.it.controller.PaidLotteryController;
 import com.digitalchina.xa.it.dao.Single_double_games_detailsDao;
@@ -38,6 +43,8 @@ import scala.util.Random;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class Test {
+	@Autowired
+	private JdbcTemplate jdbc;
 	@Autowired
 	private GameService gameService;
 	@Autowired
@@ -87,37 +94,51 @@ public class Test {
 //			gameService.runALottery(tpid0);
 //		
 //	}
-		TPaidlotteryInfoDomain tpid = new TPaidlotteryInfoDomain();
-		List<TConfigDomain> tconfigList = tconfigDAO.selectConfigByExtra("GameSzbInfo");
-		String lotteryInfo = tconfigList.get((int) (Math.random() * tconfigList.size())).getCfgValue();
-		System.out.println(lotteryInfo);
-		String[] infoList = lotteryInfo.split("##");
-		
-		tpid.setName(infoList[0]);
-		tpid.setDescription(infoList[1]);
-		tpid.setWinSumAmount(Integer.valueOf(infoList[2]));
-		tpid.setWinSumPerson(Integer.valueOf(infoList[3]));
-		tpid.setReward(infoList[4]);
-		tpid.setUnitPrice(Integer.valueOf(infoList[5]));
-		tpid.setLimitEveryday(Integer.valueOf(infoList[6]));
-		tpid.setWinCount(Integer.valueOf(infoList[7]));
-		
-		tpid.setFlag(0);
-		//1为神州币抽奖
-		tpid.setTypeCode(1);
-		tpid.setNowSumAmount(0);
-		tpid.setBackup4(0);
-		tpid.setBackup5(0);
-		tpid.setLotteryTime(new Timestamp(new Date().getTime()));
-		
-		tpid.setNowSumPerson(0);
-		tpid.setWinDate("");
-		tpid.setBackup1("");
-		tpid.setBackup2("");
-		tpid.setBackup3("");
-		single_double_games_lottery_infoDao.insertLotteryInfo(tpid);
+//		TPaidlotteryInfoDomain tpid = new TPaidlotteryInfoDomain();
+//		List<TConfigDomain> tconfigList = tconfigDAO.selectConfigByExtra("GameSzbInfo");
+//		String lotteryInfo = tconfigList.get((int) (Math.random() * tconfigList.size())).getCfgValue();
+//		System.out.println(lotteryInfo);
+//		String[] infoList = lotteryInfo.split("##");
+//		
+//		tpid.setName(infoList[0]);
+//		tpid.setDescription(infoList[1]);
+//		tpid.setWinSumAmount(Integer.valueOf(infoList[2]));
+//		tpid.setWinSumPerson(Integer.valueOf(infoList[3]));
+//		tpid.setReward(infoList[4]);
+//		tpid.setUnitPrice(Integer.valueOf(infoList[5]));
+//		tpid.setLimitEveryday(Integer.valueOf(infoList[6]));
+//		tpid.setWinCount(Integer.valueOf(infoList[7]));
+//		
+//		tpid.setFlag(0);
+//		//1为神州币抽奖
+//		tpid.setTypeCode(1);
+//		tpid.setNowSumAmount(0);
+//		tpid.setBackup4(0);
+//		tpid.setBackup5(0);
+//		tpid.setLotteryTime(new Timestamp(new Date().getTime()));
+//		
+//		tpid.setNowSumPerson(0);
+//		tpid.setWinDate("");
+//		tpid.setBackup1("");
+//		tpid.setBackup2("");
+//		tpid.setBackup3("");
+//		single_double_games_lottery_infoDao.insertLotteryInfo(tpid);
+//				   		  "{\"field1\":\"1\",\"type1\":\"1\",\"field2\":\"2\",\"type2\":\"2\"}"
+//		System.out.println("查找数据库中有无重名表");
+//		String tableName = "test1";
+//		List<Map<String,Object>> list = jdbc.queryForList("select table_name from information_schema.tables where table_schema='dc_blockchain' and table_name = '"+tableName+"'");
+//		System.out.println(list.size());
+//		List<Map<String,Object>> list = jdbc.queryForList("select table_name from table_info where itcode = 'dede'");
+//		if (list.size()>0) {
+//			for (Map<String, Object> map : list) {
+//				System.out.println(map.get("table_name"));
+//			}
+//		}
+		String data = "INSERT INTO "+1+"("+1+") VALUES ("+111+")";
 
-	
+		System.out.println("INSERT INTO add_data_detail (tableName,itcode,data) VALUES ('"+1+"','"+2+"',\""+data+"\")");
+		
+//	
 	}
 	
 }

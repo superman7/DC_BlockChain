@@ -1,6 +1,8 @@
 package com.digitalchina.xa.it.controller;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -119,12 +121,22 @@ public class TableController {
 		}
 		map.put("success", true);
 		map.put("msg", "插入成功");
-		System.out.println("INSERT INTO add_data_detail (tableName,itcode,data,time) VALUES ('"+tableName+"','"+itcode+"',\""+data+"\",'"+new Timestamp(new Date().getTime())+"')");
-		jdbc.execute("INSERT INTO add_data_detail (tableName,itcode,data,time) VALUES ('"+tableName+"','"+itcode+"',\""+data+"\",'"+new Timestamp(new Date().getTime())+")");
-		
+		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Timestamp time = new Timestamp(new Date().getTime());
+		String time1 = sdf.format(time);
+		System.out.println("INSERT INTO add_data_detail (tableName,itcode,data,time) VALUES ('"+tableName+"','"+itcode+"',\""+data+"\",'"+time1+"')");
+		jdbc.execute("INSERT INTO add_data_detail (tableName,itcode,data,time) VALUES ('"+tableName+"','"+itcode+"',\""+data+"\",'"+time1+"')");
+		System.out.println(time);
+		System.out.println("SELECT id FROM add_data_detail WHERE time = '"+time1+"'");
+		List<Map<String,Object>> list = jdbc.queryForList("SELECT id FROM add_data_detail WHERE time = '"+time1+"'");
+		int id = 0;
+		for (Map<String, Object> map2 : list) {
+			id = (int) map2.get("id");
+			System.out.println(id);
+		}
 		String url = TConfigUtils.selectValueByKey("kafka_address")+"/tableKafka/addData";
 		System.out.println(url);
-		String postParam = "itcode="+itcode+"&tableName="+tableName;
+		String postParam = "itcode="+itcode+"&tableName="+tableName+"&DataId = "+id;
 		System.out.println(postParam);
 		HttpRequest.sendPost(url, postParam);
 		return map;
