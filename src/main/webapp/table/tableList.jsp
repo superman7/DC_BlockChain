@@ -143,22 +143,6 @@
             		}
             	});  
             }
-        window.upload = function(){
-        	var formData = new FormData();
-        	formData.append("file",document.getElementById("file").files[0])
-        	$.ajax({
-                type: "post",
-                url: baseUrl + "table/uploadFile",
-                data: formData,
-                contentType: false,
-                processData: false,
-                dataType: "json",
-                success: function(data) {
-                	alert("success");
-                }
-        	});
-        }
-        
         
           
         </script>
@@ -234,7 +218,6 @@
      <div class="aui-content aui-margin-b-15">
 		<div class="aui-btn aui-btn-primary aui-btn-block aui-btn-outlined" onClick="addField()">添加字段</div>
 		<div class="aui-btn aui-btn-primary aui-btn-block aui-btn-outlined" onClick="commit()">提交</div>
-
      </div>
 
 </div>
@@ -258,20 +241,6 @@
                     <br><p class="lead" style="font-weight: bold;">Good Luck！</p><br>
                 </div>
             </div>
-            <ul class="aui-list aui-form-list" id = "form">
-    	
-         <li class="aui-list-item">
-            <div class="aui-list-item-inner">
-                <div class="aui-list-item-label">
-                    上传文件
-                </div>
-                <div class="aui-list-item-input">
-                    <input type="file" placeholder="上传文件" id="file">
-                </div>
-            </div>
-        </li>
-        </ul>
-        		<div class="aui-btn aui-btn-primary aui-btn-block aui-btn-outlined" onClick="upload()">提交</div>
         </div> 
        
         <footer class="aui-bar aui-bar-tab" id="footer">
