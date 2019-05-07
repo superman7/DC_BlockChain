@@ -29,26 +29,26 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 import com.digitalchina.xa.it.util.DecryptAndDecodeUtils;
+import com.digitalchina.xa.it.util.GetPersonalDBPwdUtils;
 import com.digitalchina.xa.it.util.HttpRequest;
+import com.digitalchina.xa.it.util.JDBCUtils;
 import com.digitalchina.xa.it.util.TConfigUtils;
-import com.mysql.fabric.xmlrpc.base.Data;
 
 @Controller
 @RequestMapping(value = "/table")
 public class TableController {
+	
 	@Autowired
 	private JdbcTemplate jdbc;
 	@ResponseBody
 	@GetMapping("/createTable")
 	@Transactional
 	public Map<String, Object> getData(
-			@RequestParam(name = "param", required = true) String param){
+			@RequestParam(name = "param", required = true) String param) throws ClassNotFoundException, SQLException{
 		
 		String jsonValue = param.trim();
 		System.out.println(jsonValue);
 		Map<String, Object> modelMap = DecryptAndDecodeUtils.decryptAndDecode(jsonValue);
-		System.out.println(modelMap.get("success"));
-		System.out.println(modelMap);
 		JSONObject jsonObj = JSONObject.parseObject((String) modelMap.get("data"));
 		System.out.println(jsonObj);
 		System.out.println(jsonObj.size());
@@ -59,6 +59,7 @@ public class TableController {
 		}
 		String tableName = jsonObj.getString("tableName");
 		String itcode = jsonObj.getString("itcode");
+		System.out.println(itcode);
 		System.out.println("查找数据库中有无重名表");
 		List<Map<String,Object>> list = jdbc.queryForList("select table_name from information_schema.tables where table_schema='dc_blockchain' and table_name = '"+tableName+"'");
 		System.out.println(list.size());
@@ -67,13 +68,14 @@ public class TableController {
 			modelMap.put("success", false);
 			return modelMap;
 		}
+		String sql = "CREATE TABLE "+tableName+" ("
+				+ field.substring(0, field.length()-1)
+				+")";
 		System.out.println("CREATE TABLE "+tableName+" ("
 				+ field.substring(0, field.length()-1)
 				+")");
-		jdbc.execute("CREATE TABLE "+tableName+"("
-				+ field.substring(0, field.length()-1)
-				+")"
-				);
+		//使用工具类动态链接数据库
+		JDBCUtils.executeSQL(sql, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 		System.out.println("将操作记录记录至建表信息表中"+"INSERT INTO table_info (itcode,table_name,table_status,fields,create_time)"
 				+ "VALUES('"+itcode+"','"+tableName+"',"+0+",'"+field.substring(0, field.length()-1)+new Timestamp(new Date().getTime())+"')");
 		jdbc.execute("INSERT INTO table_info (itcode,table_name,table_status,fields)"
@@ -151,11 +153,13 @@ public class TableController {
 	public Map<String, Object> addDataToTable(@RequestParam(name = "tableName",required = true)String tableName,
 			@RequestParam(name = "itcode",required = true)String itcode,
 			@RequestParam(name = "fieldNames",required = true)String fieldNames,
-			@RequestParam(name = "fieldValues",required = true)String fieldValues){
+			@RequestParam(name = "fieldValues",required = true)String fieldValues) throws ClassNotFoundException, SQLException{
 		HashMap<String,Object> map = new HashMap<>();
 		System.out.println("插入数据到表中"+"INSERT INTO "+tableName+"("+fieldNames+") VALUES ("+fieldValues+")");
 		String data = "INSERT INTO "+tableName+"("+fieldNames+") VALUES ("+fieldValues+")";
-		int result = jdbc.update(data);
+		//int result = jdbc.update(data);
+		//使用工具类动态链接数据库
+		int result = JDBCUtils.executeSQL(data, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 		System.out.println(result);
 		if (result == 0) {
 			map.put("success", false);
@@ -186,7 +190,8 @@ public class TableController {
 	}
 	@ResponseBody
 	@RequestMapping("/uploadFile")
-	public Map<String, Object> uploadFile(@RequestParam MultipartFile file) throws IllegalStateException, IOException, ClassNotFoundException, SQLException {
+	public Map<String, Object> uploadFile(@RequestParam MultipartFile file,@RequestParam String itcode) throws IllegalStateException, IOException, ClassNotFoundException, SQLException {
+		System.out.println(itcode);
 		HashMap<String, Object> map = new HashMap<>();
 		//获取文件名
 		String filename = file.getOriginalFilename();
@@ -200,7 +205,7 @@ public class TableController {
 			return map;
 		}
 		System.out.println(filename);
-		String itcode = "fannl";
+//		String itcode1 = "fannl";
 		String sql = "";
 		String fieldNames = "";
 		String fieldValues = "";
@@ -222,14 +227,14 @@ public class TableController {
 				String lString = "select table_name from information_schema.tables where table_name = '" + filename
 						+ "'";
 				//判断表名是否存在，如果存在不用创建新表，直接插入值
-				int querySQL = executeQuerySQL(lString, itcode);
+				int querySQL = JDBCUtils.executeQuerySQL(lString, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 				if (querySQL == 1) {
 					System.out.println("表已存在");
 				} else {
 					//创建表
 					sql = "CREATE TABLE " + filename + "(" + fieldNames.substring(0, fieldNames.length() - 1) + ")";
 					System.out.println(sql);
-					executeSQL(sql, itcode);
+					JDBCUtils.executeSQL(sql, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 					System.out.println(fieldNames);
 				}
 			} else {
@@ -242,61 +247,13 @@ public class TableController {
 				//每次插入一行值
 				sql = "INSERT INTO " + filename + " VALUES(" + fieldValues.substring(0, fieldValues.length() - 1) + ")";
 				System.out.println(sql);
-				executeSQL(sql, itcode);
+				JDBCUtils.executeSQL(sql, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 			}
 		}
-		
-		return null;
+		map.put("success", true);
+		map.put("msg", "导入成功");
+		return map;
 	}
 
-	private static final String DRIVER = "com.mysql.jdbc.Driver";
-	// URL编写方式：jdbc:mysql://主机名称：连接端口/数据库的名称?参数=值
-	private static final String URL = "jdbc:mysql://10.0.5.106:4001/";
-	private static final String PASSWORD = "0x189a";
-
-	// 连接数据库
-	public Connection getConn(String url, String username) throws ClassNotFoundException, SQLException {
-		Class.forName(DRIVER); // 动态加载mysql驱动
-		Connection conn = DriverManager.getConnection(url, username, PASSWORD); // 建立数据库链接
-		return conn; // 返回数据库连接对象
-	}
-
-	// 释放资源
-	public void closeAll(Connection conn, Statement stmt, ResultSet rs) throws SQLException {
-		if (rs != null) {
-			rs.close();
-		}
-		if (stmt != null) {
-			stmt.close();
-		}
-		if (conn != null) {
-			conn.close();
-		}
-	}
-
-	// 执行SQL语句，可以进行增、删、改的操作
-	// return 影响条数
-	public int executeSQL(String sql, String itcode) throws ClassNotFoundException, SQLException {
-		Connection conn = this.getConn(URL + itcode, itcode);
-		Statement stmt = conn.createStatement();
-		// 对于 CREATE TABLE 或 DROP TABLE 等不操作行的语句，executeUpdate 的返回值总为零
-		int number = stmt.executeUpdate(sql);
-		this.closeAll(conn, stmt, null);
-		return number;
-	}
-
-	// 执行SQL语句，可以进行查询操作
-	// return 影响条数
-	public int executeQuerySQL(String sql, String itcode) throws ClassNotFoundException, SQLException {
-		Connection conn = this.getConn(URL + itcode, itcode);
-		Statement stmt = conn.createStatement();
-		// 对于 CREATE TABLE 或 DROP TABLE 等不操作行的语句，executeUpdate 的返回值总为零
-		ResultSet rs = stmt.executeQuery(sql);
-		while (rs.next()) {
-			String string = rs.getString(1);
-			this.closeAll(conn, stmt, null);
-			return 1;
-		}
-		return 0;
-	}
+	
 }

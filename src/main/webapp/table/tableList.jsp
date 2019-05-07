@@ -84,7 +84,7 @@
             			tableName = list[i].table_name;
             			listHtml +="<li class='aui-list-item' onclick='addData(\""+tableName+"\")'><div class='aui-list-item-inner'><div class='aui-list-item-label'>表名</div><div class='aui-list-item-input' >"+tableName+"</div></div></li>";
             		}
-            		$("#form").append(listHtml);
+            		$("#form2").append(listHtml);
             	}
             });
             
@@ -144,8 +144,10 @@
             	});  
             }
         window.upload = function(){
+        	alert(itcode);
         	var formData = new FormData();
-        	formData.append("file",document.getElementById("file").files[0])
+        	formData.append("itcode",itcode);
+        	formData.append("file",document.getElementById("file").files[0]);
         	$.ajax({
                 type: "post",
                 url: baseUrl + "table/uploadFile",
@@ -154,7 +156,7 @@
                 processData: false,
                 dataType: "json",
                 success: function(data) {
-                	alert("success");
+                	alert(data.success);
                 }
         	});
         }
@@ -167,7 +169,7 @@
     <div id = "list" hidden="hidden">
     <h1 align="center">创建的表</h1>
     <div class="aui-content aui-margin-b-15">
-    <ul class="aui-list aui-form-list" id = "form">    
+    <ul class="aui-list aui-form-list" id = "form2">    
     </ul>
 	</div>
 	</div>
@@ -258,7 +260,7 @@
                     <br><p class="lead" style="font-weight: bold;">Good Luck！</p><br>
                 </div>
             </div>
-            <ul class="aui-list aui-form-list" id = "form">
+            <ul class="aui-list aui-form-list" id = "form3">
     	
          <li class="aui-list-item">
             <div class="aui-list-item-inner">
