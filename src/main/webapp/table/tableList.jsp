@@ -144,8 +144,10 @@
             	});  
             }
         window.upload = function(){
+        	alert(itcode);
         	var formData = new FormData();
-        	formData.append("file",document.getElementById("file").files[0])
+        	formData.append("itcode",itcode);
+        	formData.append("file",document.getElementById("file").files[0]);
         	$.ajax({
                 type: "post",
                 url: baseUrl + "table/uploadFile",
@@ -154,7 +156,7 @@
                 processData: false,
                 dataType: "json",
                 success: function(data) {
-                	alert("success");
+                	alert(data.success);
                 }
         	});
         }
