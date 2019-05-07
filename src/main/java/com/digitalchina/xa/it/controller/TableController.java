@@ -161,6 +161,11 @@ public class TableController {
 		int index = filename.indexOf(".");//首先获取字符的位置
 		//去除文件后缀名做表名
 		filename = filename.substring(0,index);
+		if (filename.startsWith("[0-9]")) {
+			map.put("success", false);
+			map.put("msg", "文件名不能以数字开头哦");
+			return map;
+		}
 		System.out.println(filename);
 		String itcode = "fannl";
 		String sql = "";
