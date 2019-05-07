@@ -82,11 +82,44 @@ public class TableController {
 		modelMap.put("msg", "建表成功");
 		return modelMap;
 	}
+	
+	/**
+	 * @api {get} /table/getTableList 查询用户所有表名
+	 * @apiVersion 0.0.1
+	 * 
+	 * @apiName GetTableList
+	 * @apiGroup TiDBGroupRead
+	 *
+	 * @apiParam {String} itcode 用户的itcode.
+	 *
+	 * @apiSuccess {Boolean} success  是否查询到结果，false表示该用户还未曾建表.
+	 * @apiSuccess {String} msg  查询结果信息提示.
+	 * @apiSuccess {List} list  查询结果详情，使用"table_name"可取出表名.
+	 * 
+	 * @apiSuccessExample Success-Response: 查询结果示例1
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "查找成功",
+	 *         "success": true,
+	 *         "list": [
+	 *             {
+	 *                 "table_name": "test"
+	 *             }
+	 *         ]
+	 *     }
+	 *     
+	 * @apiSuccessExample Success-Response: 查询结果示例2
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "您还没有建表",
+	 *         "success": false
+	 *     }
+	 */
 	@ResponseBody
 	@GetMapping("/getTableList")
 	public Map<String, Object> getTableList(@RequestParam(name = "itcode", required = true)String itcode){
 		HashMap<String,Object> map = new HashMap<>();
-		List<Map<String,Object>> list = jdbc.queryForList("select table_name from table_info where itcode = 'dede'");
+		List<Map<String,Object>> list = jdbc.queryForList("select table_name from table_info where itcode = '" + itcode + "'");
 		if (list.size()>0) {
 			map.put("list", list);
 			map.put("success", true);
