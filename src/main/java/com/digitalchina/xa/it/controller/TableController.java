@@ -1,5 +1,11 @@
 package com.digitalchina.xa.it.controller;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -8,6 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
@@ -16,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 import com.digitalchina.xa.it.util.DecryptAndDecodeUtils;
@@ -140,5 +150,120 @@ public class TableController {
 		System.out.println(postParam);
 		HttpRequest.sendPost(url, postParam);
 		return map;
+	}
+	@ResponseBody
+	@RequestMapping("/uploadFile")
+	public Map<String, Object> uploadFile(@RequestParam MultipartFile file) throws IllegalStateException, IOException, ClassNotFoundException, SQLException {
+		HashMap<String, Object> map = new HashMap<>();
+		//获取文件名
+		String filename = file.getOriginalFilename();
+		HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
+		int index = filename.indexOf(".");//首先获取字符的位置
+		//去除文件后缀名做表名
+		filename = filename.substring(0,index);
+		if (filename.startsWith("[0-9]")) {
+			map.put("success", false);
+			map.put("msg", "文件名不能以数字开头哦");
+			return map;
+		}
+		System.out.println(filename);
+		String itcode = "fannl";
+		String sql = "";
+		String fieldNames = "";
+		String fieldValues = "";
+		//获取表中第一个sheet
+		HSSFSheet sheetAt = workbook.getSheetAt(0);
+		//获取总行数
+		int lastRowNum = sheetAt.getLastRowNum();
+		for (int i = 0; i <= lastRowNum; i++) {
+			HSSFRow row = sheetAt.getRow(i);
+			//获取总列数
+			short lastCellNum = row.getLastCellNum();
+			if (i == 0) {
+				for (int j = 0; j <= lastCellNum; j++) {
+					if (row.getCell(j) == null) {
+					} else {
+						fieldNames += row.getCell(j) + " varchar(255),";
+					}
+				}
+				String lString = "select table_name from information_schema.tables where table_name = '" + filename
+						+ "'";
+				//判断表名是否存在，如果存在不用创建新表，直接插入值
+				int querySQL = executeQuerySQL(lString, itcode);
+				if (querySQL == 1) {
+					System.out.println("表已存在");
+				} else {
+					//创建表
+					sql = "CREATE TABLE " + filename + "(" + fieldNames.substring(0, fieldNames.length() - 1) + ")";
+					System.out.println(sql);
+					executeSQL(sql, itcode);
+					System.out.println(fieldNames);
+				}
+			} else {
+				fieldValues = "";
+				for (int j = 0; j <= lastCellNum; j++) {
+					if (!(row.getCell(j) == null)) {
+						fieldValues += "'"+row.getCell(j) + "',";
+					}
+				}
+				//每次插入一行值
+				sql = "INSERT INTO " + filename + " VALUES(" + fieldValues.substring(0, fieldValues.length() - 1) + ")";
+				System.out.println(sql);
+				executeSQL(sql, itcode);
+			}
+		}
+		
+		return null;
+	}
+
+	private static final String DRIVER = "com.mysql.jdbc.Driver";
+	// URL编写方式：jdbc:mysql://主机名称：连接端口/数据库的名称?参数=值
+	private static final String URL = "jdbc:mysql://10.0.5.106:4001/";
+	private static final String PASSWORD = "0x189a";
+
+	// 连接数据库
+	public Connection getConn(String url, String username) throws ClassNotFoundException, SQLException {
+		Class.forName(DRIVER); // 动态加载mysql驱动
+		Connection conn = DriverManager.getConnection(url, username, PASSWORD); // 建立数据库链接
+		return conn; // 返回数据库连接对象
+	}
+
+	// 释放资源
+	public void closeAll(Connection conn, Statement stmt, ResultSet rs) throws SQLException {
+		if (rs != null) {
+			rs.close();
+		}
+		if (stmt != null) {
+			stmt.close();
+		}
+		if (conn != null) {
+			conn.close();
+		}
+	}
+
+	// 执行SQL语句，可以进行增、删、改的操作
+	// return 影响条数
+	public int executeSQL(String sql, String itcode) throws ClassNotFoundException, SQLException {
+		Connection conn = this.getConn(URL + itcode, itcode);
+		Statement stmt = conn.createStatement();
+		// 对于 CREATE TABLE 或 DROP TABLE 等不操作行的语句，executeUpdate 的返回值总为零
+		int number = stmt.executeUpdate(sql);
+		this.closeAll(conn, stmt, null);
+		return number;
+	}
+
+	// 执行SQL语句，可以进行查询操作
+	// return 影响条数
+	public int executeQuerySQL(String sql, String itcode) throws ClassNotFoundException, SQLException {
+		Connection conn = this.getConn(URL + itcode, itcode);
+		Statement stmt = conn.createStatement();
+		// 对于 CREATE TABLE 或 DROP TABLE 等不操作行的语句，executeUpdate 的返回值总为零
+		ResultSet rs = stmt.executeQuery(sql);
+		while (rs.next()) {
+			String string = rs.getString(1);
+			this.closeAll(conn, stmt, null);
+			return 1;
+		}
+		return 0;
 	}
 }
