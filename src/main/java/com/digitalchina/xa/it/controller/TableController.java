@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 import com.digitalchina.xa.it.util.DecryptAndDecodeUtils;
+import com.digitalchina.xa.it.util.GetPersonalDBPwdUtils;
 import com.digitalchina.xa.it.util.HttpRequest;
 import com.digitalchina.xa.it.util.JDBCUtils;
 import com.digitalchina.xa.it.util.TConfigUtils;
@@ -36,8 +37,6 @@ import com.digitalchina.xa.it.util.TConfigUtils;
 @Controller
 @RequestMapping(value = "/table")
 public class TableController {
-	
-	private static final String PASSWORD = "0x189a";
 	
 	@Autowired
 	private JdbcTemplate jdbc;
@@ -76,7 +75,7 @@ public class TableController {
 				+ field.substring(0, field.length()-1)
 				+")");
 		//使用工具类动态链接数据库
-		JDBCUtils.executeSQL(sql, itcode, PASSWORD);
+		JDBCUtils.executeSQL(sql, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 		System.out.println("将操作记录记录至建表信息表中"+"INSERT INTO table_info (itcode,table_name,table_status,fields,create_time)"
 				+ "VALUES('"+itcode+"','"+tableName+"',"+0+",'"+field.substring(0, field.length()-1)+new Timestamp(new Date().getTime())+"')");
 		jdbc.execute("INSERT INTO table_info (itcode,table_name,table_status,fields)"
@@ -85,11 +84,44 @@ public class TableController {
 		modelMap.put("msg", "建表成功");
 		return modelMap;
 	}
+	
+	/**
+	 * @api {get} /table/getTableList 查询用户所有表名
+	 * @apiVersion 0.0.1
+	 * 
+	 * @apiName GetTableList
+	 * @apiGroup TiDBGroupRead
+	 *
+	 * @apiParam {String} itcode 用户的itcode.
+	 *
+	 * @apiSuccess {Boolean} success  是否查询到结果，false表示该用户还未曾建表.
+	 * @apiSuccess {String} msg  查询结果信息提示.
+	 * @apiSuccess {List} list  查询结果详情，使用"table_name"可取出表名.
+	 * 
+	 * @apiSuccessExample Success-Response: 查询结果示例1
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "查找成功",
+	 *         "success": true,
+	 *         "list": [
+	 *             {
+	 *                 "table_name": "test"
+	 *             }
+	 *         ]
+	 *     }
+	 *     
+	 * @apiSuccessExample Success-Response: 查询结果示例2
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "您还没有建表",
+	 *         "success": false
+	 *     }
+	 */
 	@ResponseBody
 	@GetMapping("/getTableList")
 	public Map<String, Object> getTableList(@RequestParam(name = "itcode", required = true)String itcode){
 		HashMap<String,Object> map = new HashMap<>();
-		List<Map<String,Object>> list = jdbc.queryForList("select table_name from table_info where itcode = '"+itcode+"'");
+		List<Map<String,Object>> list = jdbc.queryForList("select table_name from table_info where itcode = '" + itcode + "'");
 		if (list.size()>0) {
 			map.put("list", list);
 			map.put("success", true);
@@ -127,7 +159,7 @@ public class TableController {
 		String data = "INSERT INTO "+tableName+"("+fieldNames+") VALUES ("+fieldValues+")";
 		//int result = jdbc.update(data);
 		//使用工具类动态链接数据库
-		int result = JDBCUtils.executeSQL(data, itcode, PASSWORD);
+		int result = JDBCUtils.executeSQL(data, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 		System.out.println(result);
 		if (result == 0) {
 			map.put("success", false);
@@ -194,14 +226,14 @@ public class TableController {
 				String lString = "select table_name from information_schema.tables where table_name = '" + filename
 						+ "'";
 				//判断表名是否存在，如果存在不用创建新表，直接插入值
-				int querySQL = JDBCUtils.executeQuerySQL(lString, itcode,PASSWORD);
+				int querySQL = JDBCUtils.executeQuerySQL(lString, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 				if (querySQL == 1) {
 					System.out.println("表已存在");
 				} else {
 					//创建表
 					sql = "CREATE TABLE " + filename + "(" + fieldNames.substring(0, fieldNames.length() - 1) + ")";
 					System.out.println(sql);
-					JDBCUtils.executeSQL(sql, itcode,PASSWORD);
+					JDBCUtils.executeSQL(sql, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 					System.out.println(fieldNames);
 				}
 			} else {
@@ -214,7 +246,7 @@ public class TableController {
 				//每次插入一行值
 				sql = "INSERT INTO " + filename + " VALUES(" + fieldValues.substring(0, fieldValues.length() - 1) + ")";
 				System.out.println(sql);
-				JDBCUtils.executeSQL(sql, itcode,PASSWORD);
+				JDBCUtils.executeSQL(sql, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 			}
 		}
 		map.put("success", true);
