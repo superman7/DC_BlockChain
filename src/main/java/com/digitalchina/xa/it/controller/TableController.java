@@ -173,7 +173,6 @@ public class TableController {
 			return map;
 		}
 		System.out.println(filename);
-		String itcode1 = "fannl";
 		String sql = "";
 		String fieldNames = "";
 		String fieldValues = "";
@@ -195,14 +194,14 @@ public class TableController {
 				String lString = "select table_name from information_schema.tables where table_name = '" + filename
 						+ "'";
 				//判断表名是否存在，如果存在不用创建新表，直接插入值
-				int querySQL = JDBCUtils.executeQuerySQL(lString, itcode1,PASSWORD);
+				int querySQL = JDBCUtils.executeQuerySQL(lString, itcode,PASSWORD);
 				if (querySQL == 1) {
 					System.out.println("表已存在");
 				} else {
 					//创建表
 					sql = "CREATE TABLE " + filename + "(" + fieldNames.substring(0, fieldNames.length() - 1) + ")";
 					System.out.println(sql);
-					JDBCUtils.executeSQL(sql, itcode1,PASSWORD);
+					JDBCUtils.executeSQL(sql, itcode,PASSWORD);
 					System.out.println(fieldNames);
 				}
 			} else {
@@ -215,7 +214,7 @@ public class TableController {
 				//每次插入一行值
 				sql = "INSERT INTO " + filename + " VALUES(" + fieldValues.substring(0, fieldValues.length() - 1) + ")";
 				System.out.println(sql);
-				JDBCUtils.executeSQL(sql, itcode1,PASSWORD);
+				JDBCUtils.executeSQL(sql, itcode,PASSWORD);
 			}
 		}
 		map.put("success", true);
