@@ -40,6 +40,36 @@ public class TableController {
 	
 	@Autowired
 	private JdbcTemplate jdbc;
+	
+	/**
+	 * @api {get} /table/createTable 根据所填信息生成表
+	 * @apiVersion 0.0.1
+	 * 
+	 * @apiName createTable
+	 * @apiGroup TiDBGroupCreate
+	 *
+	 * @apiParam {String} itcode 用户的itcode.
+	 * @apiParam {String} tableName 新建表名.
+	 * @apiParam {String} fields 建表字段.
+	 * @apiParam {String} fieldTypes 字段类型.
+	 *
+	 * @apiSuccess {Boolean} success  是否建表成功，false建表未成功，可能原因：有同名表存在.
+	 * @apiSuccess {String} msg  查询结果信息提示.
+	 * 
+	 * @apiSuccessExample Success-Response: 查询结果示例1
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "建表成功",
+	 *         "success": true
+	 *     }
+	 *     
+	 * @apiSuccessExample Success-Response: 查询结果示例2
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "表名已存在",
+	 *         "success": false
+	 *     }
+	 */
 	@ResponseBody
 	@GetMapping("/createTable")
 	@Transactional
@@ -133,11 +163,45 @@ public class TableController {
 			return map;
 		}		
 	}
+	
+	/**
+	 * @api {get} /table/getTableList 查询用户所有表名
+	 * @apiVersion 0.0.1
+	 * 
+	 * @apiName GetTableList
+	 * @apiGroup TiDBGroupRead
+	 *
+	 * @apiParam {String} itcode 用户的itcode.
+	 *
+	 * @apiSuccess {Boolean} success  是否查询到结果，false表示该用户还未曾建表.
+	 * @apiSuccess {String} msg  查询结果信息提示.
+	 * @apiSuccess {List} list  查询结果详情，使用"table_name"可取出表名.
+	 * 
+	 * @apiSuccessExample Success-Response: 查询结果示例1
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "查找成功",
+	 *         "success": true,
+	 *         "list": [
+	 *             {
+	 *                 "table_name": "test"
+	 *             }
+	 *         ]
+	 *     }
+	 *     
+	 * @apiSuccessExample Success-Response: 查询结果示例2
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "您还没有建表",
+	 *         "success": false
+	 *     }
+	 */
 	@ResponseBody
 	@GetMapping("/getOne")
-	public Map<String, Object> getTableInfoByTableName(@RequestParam(name = "tableName", required = true)String tableName){
+	public Map<String, Object> getTableInfoByTableName(@RequestParam(name = "tableName", required = true)String tableName,
+			@RequestParam(name = "itcode",required = true)String itcode){
 		HashMap<String,Object> map = new HashMap<>();
-		List<Map<String,Object>> list = jdbc.queryForList("select fields from table_info where table_name = '"+tableName+"'");
+		List<Map<String,Object>> list = jdbc.queryForList("select fields from table_info where table_name = '"+tableName+"'"+" and itcode = "+itcode);
 		if (list.size()>0) {
 			map.put("list", list);
 			map.put("success", true);
