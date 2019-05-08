@@ -51,7 +51,7 @@ public class TableController {
 	 * @apiParam {String} itcode 用户的itcode.
 	 * @apiParam {String} tableName 新建表名.
 	 * @apiParam {String} fields 建表字段.
-	 * @apiParam {String} fieldTypes 字段类型.
+	 * @apiParam {String} fieldTypes 字段类型.例：{"field1":"name","type2":"int","itcode":"fannl","type1":"varchar(255)","field2":"id","tableName":"student"}
 	 *
 	 * @apiSuccess {Boolean} success  是否建表成功，false建表未成功，可能原因：有同名表存在.
 	 * @apiSuccess {String} msg  查询结果信息提示.
@@ -106,8 +106,8 @@ public class TableController {
 				+")");
 		//使用工具类动态链接数据库
 		JDBCUtils.executeSQL(sql, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
-		System.out.println("将操作记录记录至建表信息表中"+"INSERT INTO table_info (itcode,table_name,table_status,fields,create_time)"
-				+ "VALUES('"+itcode+"','"+tableName+"',"+0+",'"+field.substring(0, field.length()-1)+new Timestamp(new Date().getTime())+"')");
+		System.out.println("将操作记录记录至建表信息表中INSERT INTO table_info (itcode,table_name,table_status,fields)"
+				+ "VALUES('"+itcode+"','"+tableName+"',"+0+",'"+field.substring(0, field.length()-1)+"')");
 		jdbc.execute("INSERT INTO table_info (itcode,table_name,table_status,fields)"
 				+ "VALUES('"+itcode+"','"+tableName+"',"+0+",'"+field.substring(0, field.length()-1)+"')");
 		modelMap.put("success", true);
@@ -198,7 +198,8 @@ public class TableController {
 	public Map<String, Object> getTableInfoByTableName(@RequestParam(name = "tableName", required = true)String tableName,
 			@RequestParam(name = "itcode",required = true)String itcode){
 		HashMap<String,Object> map = new HashMap<>();
-		List<Map<String,Object>> list = jdbc.queryForList("select fields from table_info where table_name = '"+tableName+"'"+" and itcode = "+itcode);
+		System.out.println("select fields from table_info where table_name = '"+tableName+"'"+" and itcode = '"+itcode+"'");
+		List<Map<String,Object>> list = jdbc.queryForList("select fields from table_info where table_name = '"+tableName+"'"+" and itcode = '"+itcode+"'");
 		if (list.size()>0) {
 			map.put("list", list);
 			map.put("success", true);
@@ -221,6 +222,7 @@ public class TableController {
 	 * @apiParam {String} tableName 新建表名.
 	 * @apiParam {String} fieldNames 字段名.
 	 * @apiParam {String} fieldValues 字段数据.
+	 * 字段名
 	 *
 	 * @apiSuccess {Boolean} success  是否插入数据成功，false未成功，可能原因：所填数据格式与相应字段格式不符.
 	 * @apiSuccess {String} msg  查询结果信息提示.

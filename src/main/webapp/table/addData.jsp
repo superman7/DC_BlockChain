@@ -54,13 +54,16 @@
         	$.ajax({
         		type:"GET",
         		url:"/table/getOne",
-        		data:{"tableName":tableName
+        		data:{"tableName":tableName,
         			"itcode":itcode	
         		},
         		dataType:"json",
         		success:function(data){
+        			alert(data.success);
         			var list = data.list;
+        			alert(list);
         			fields = list[0].fields;
+        			alert(fields);
         			field = fields.split(",");
         			for(var i = 0;i < field.length;i++){
         				fieldName = field[i].split(" ")[0];
