@@ -56,14 +56,14 @@ public class TableController {
 	 * @apiSuccess {Boolean} success  是否建表成功，false建表未成功，可能原因：有同名表存在.
 	 * @apiSuccess {String} msg  查询结果信息提示.
 	 * 
-	 * @apiSuccessExample Success-Response: 查询结果示例1
+	 * @apiSuccessExample Success-Response: 返回结果示例1
 	 *     HTTP/1.1 200 OK
 	 *     {
 	 *         "msg": "建表成功",
 	 *         "success": true
 	 *     }
 	 *     
-	 * @apiSuccessExample Success-Response: 查询结果示例2
+	 * @apiSuccessExample Success-Response: 返回结果示例2
 	 *     HTTP/1.1 200 OK
 	 *     {
 	 *         "msg": "表名已存在",
@@ -165,34 +165,31 @@ public class TableController {
 	}
 	
 	/**
-	 * @api {get} /table/getTableList 查询用户所有表名
+	 * @api {get} /table/getOne 查询指定表字段，字段类型
 	 * @apiVersion 0.0.1
 	 * 
-	 * @apiName GetTableList
+	 * @apiName GetOne
 	 * @apiGroup TiDBGroupRead
 	 *
+	 * @apiParam {String} tableName 用户的所要查询的表名.
 	 * @apiParam {String} itcode 用户的itcode.
 	 *
-	 * @apiSuccess {Boolean} success  是否查询到结果，false表示该用户还未曾建表.
+	 * @apiSuccess {Boolean} success  是否查询到结果，false未查询到结果.
 	 * @apiSuccess {String} msg  查询结果信息提示.
-	 * @apiSuccess {List} list  查询结果详情，使用"table_name"可取出表名.
+	 * @apiSuccess {List} list  查询字段详情，为"field1 type1,field2 type2"格式,需进行切割处理
 	 * 
 	 * @apiSuccessExample Success-Response: 查询结果示例1
 	 *     HTTP/1.1 200 OK
 	 *     {
-	 *         "msg": "查找成功",
+	 *         "msg": "查询成功",
 	 *         "success": true,
-	 *         "list": [
-	 *             {
-	 *                 "table_name": "test"
-	 *             }
-	 *         ]
+	 *         "list": "field1 fieldType1,field2 fieldType2,..."
 	 *     }
 	 *     
 	 * @apiSuccessExample Success-Response: 查询结果示例2
 	 *     HTTP/1.1 200 OK
 	 *     {
-	 *         "msg": "您还没有建表",
+	 *         "msg": "查找表数据异常",
 	 *         "success": false
 	 *     }
 	 */
@@ -205,12 +202,43 @@ public class TableController {
 		if (list.size()>0) {
 			map.put("list", list);
 			map.put("success", true);
+			map.put("msg", "查询成功");
 		}else {
 			map.put("success", false);
 			map.put("msg", "查找表数据异常");
 		}
 		return map;
 	}
+	
+	/**
+	 * @api {get} /table/addDataToTable 将所填信息插入到表中
+	 * @apiVersion 0.0.1
+	 * 
+	 * @apiName addDataToTable
+	 * @apiGroup TiDBGroupCreate
+	 *
+	 * @apiParam {String} itcode 用户的itcode.
+	 * @apiParam {String} tableName 新建表名.
+	 * @apiParam {String} fieldNames 字段名.
+	 * @apiParam {String} fieldValues 字段数据.
+	 *
+	 * @apiSuccess {Boolean} success  是否插入数据成功，false未成功，可能原因：所填数据格式与相应字段格式不符.
+	 * @apiSuccess {String} msg  查询结果信息提示.
+	 * 
+	 * @apiSuccessExample Success-Response: 返回结果示例1
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "插入成功",
+	 *         "success": true
+	 *     }
+	 *     
+	 * @apiSuccessExample Success-Response: 返回结果示例2
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "插入失败，请检查字段格式后重试",
+	 *         "success": false
+	 *     }
+	 */
 	@ResponseBody
 	@GetMapping("/addDataToTable")
 	@Transactional
@@ -252,6 +280,49 @@ public class TableController {
 		HttpRequest.sendPost(url, postParam);
 		return map;
 	}
+	
+	
+	
+	/**
+	 * @api {get} /table/uploadFile 将上传的excel表格中数据保存到数据库中
+	 * @apiVersion 0.0.1
+	 * 
+	 * @apiName uploadFile
+	 * @apiGroup TiDBGroupCreate
+	 *
+	 * @apiParam {String} itcode 用户的itcode.
+	 * @apiParam {MultipartFile} file 上传的Excel文件.
+
+	 *
+	 * @apiSuccess {Boolean} success  是否上传成功，false未成功，可能原因：文件名以数字开头（数据库不支持表名为数字开头）；所传文件格式不正确（非Excel表形式）.
+	 * @apiSuccess {String} msg  查询结果信息提示.
+	 * 
+	 * @apiSuccessExample Success-Response: 返回结果示例1
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "上传成功",
+	 *         "success": true
+	 *     }
+	 *     
+	 * @apiSuccessExample Success-Response: 返回结果示例2
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "文件名不能以数字开头哦",
+	 *         "success": false
+	 *     }
+	 * @apiSuccessExample Success-Response: 返回结果示例3
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "请检查文件格式是否为Excel格式",
+	 *         "success": false
+	 *     }
+	 * @apiSuccessExample Success-Response: 返回结果示例3
+	 *     HTTP/1.1 200 OK
+	 *     {
+	 *         "msg": "插入数据失败，请检查数据格式",
+	 *         "success": false
+	 *     }
+	 */
 	@ResponseBody
 	@RequestMapping("/uploadFile")
 	public Map<String, Object> uploadFile(@RequestParam MultipartFile file,@RequestParam String itcode) throws IllegalStateException, IOException, ClassNotFoundException, SQLException {
@@ -259,7 +330,15 @@ public class TableController {
 		HashMap<String, Object> map = new HashMap<>();
 		//获取文件名
 		String filename = file.getOriginalFilename();
-		HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
+		HSSFWorkbook workbook;
+		try {
+			workbook = new HSSFWorkbook(file.getInputStream());			
+		} catch (Exception e) {
+			e.printStackTrace();
+			map.put("success", false);
+			map.put("msg", "请检查文件格式是否为Excel格式");
+			return map;
+		}
 		int index = filename.indexOf(".");//首先获取字符的位置
 		//去除文件后缀名做表名
 		filename = filename.substring(0,index);
@@ -289,6 +368,7 @@ public class TableController {
 				}
 				String lString = "select table_name from information_schema.tables where table_name = '" + filename
 						+ "'";
+				System.out.println(fieldNames);
 				//判断表名是否存在，如果存在不用创建新表，直接插入值
 				int querySQL = JDBCUtils.executeQuerySQL(lString, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 				if (querySQL == 1) {
@@ -298,7 +378,10 @@ public class TableController {
 					sql = "CREATE TABLE " + filename + "(" + fieldNames.substring(0, fieldNames.length() - 1) + ")";
 					System.out.println(sql);
 					JDBCUtils.executeSQL(sql, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
-					System.out.println(fieldNames);
+					System.out.println("将操作记录记录至建表信息表中"+"INSERT INTO table_info (itcode,table_name,table_status,fields,create_time)"
+							+ "VALUES('"+itcode+"','"+filename+"',"+0+",'"+fieldNames.substring(0, fieldNames.length()-1)+new Timestamp(new Date().getTime())+"')");
+					jdbc.execute("INSERT INTO table_info (itcode,table_name,table_status,fields)"
+							+ "VALUES('"+itcode+"','"+filename+"',"+0+",'"+fieldNames.substring(0, fieldNames.length()-1)+"')");
 				}
 			} else {
 				fieldValues = "";
@@ -310,7 +393,19 @@ public class TableController {
 				//每次插入一行值
 				sql = "INSERT INTO " + filename + " VALUES(" + fieldValues.substring(0, fieldValues.length() - 1) + ")";
 				System.out.println(sql);
-				JDBCUtils.executeSQL(sql, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
+				try {
+					JDBCUtils.executeSQL(sql, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));					
+				} catch (Exception e) {
+					e.printStackTrace();
+					map.put("success", false);
+					map.put("msg", "插入数据失败，请检查数据格式");
+					return map;
+				}
+				DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				Timestamp time = new Timestamp(new Date().getTime());
+				String time1 = sdf.format(time);
+				System.out.println("INSERT INTO add_data_detail (tableName,itcode,data,time) VALUES ('"+filename+"','"+itcode+"',\""+sql+"\",'"+time1+"')");
+				jdbc.execute("INSERT INTO add_data_detail (tableName,itcode,data,time) VALUES ('"+filename+"','"+itcode+"',\""+sql+"\",'"+time1+"')");
 			}
 		}
 		map.put("success", true);

@@ -54,7 +54,9 @@
         	$.ajax({
         		type:"GET",
         		url:"/table/getOne",
-        		data:{"tableName":tableName},
+        		data:{"tableName":tableName
+        			"itcode":itcode	
+        		},
         		dataType:"json",
         		success:function(data){
         			var list = data.list;
