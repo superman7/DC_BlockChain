@@ -135,7 +135,6 @@
 	                            error:console.log(data),
 	                            success: function(data) {
 	                            	alert(data.msg);
-	                            	alert(data.success);
 	                                $("#create").hide();
 	                                $("#list").show(); 
 	                            }
@@ -144,7 +143,6 @@
             	});  
             }
         window.upload = function(){
-        	alert(itcode);
         	var formData = new FormData();
         	formData.append("itcode",itcode);
         	formData.append("file",document.getElementById("file").files[0]);

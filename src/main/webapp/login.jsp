@@ -73,7 +73,7 @@
 								addCookie("username",username,2);
 								addCookie("u_pwd",u_pwd,2);
 								addCookie("itcode",result.data,2);
-								window.location.href = "/index.jsp";
+								window.location.href = "/table/tableList.jsp";
 							}else if(result.status==1){
 								$("#username_msg").html(result.msg);
 							}else if(result.status==2){
