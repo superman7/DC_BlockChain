@@ -31,7 +31,7 @@ public class GetPersonalDBPwdUtils {
 		EthAccountDomain ethAccountDomain = ethAccountService1.selectDefaultEthAccount(itcode);
 		String account = ethAccountDomain.getAccount();
 		String password = account.substring(0, 6);
-		System.out.println(password);
+//		System.out.println(password);
 		return password;
 	}
 	

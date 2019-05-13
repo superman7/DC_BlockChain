@@ -221,7 +221,7 @@ public class TableController {
 	 * @apiParam {String} itcode 用户的itcode.
 	 * @apiParam {String} tableName 新建表名.
 	 * @apiParam {String} fieldNames 字段名.
-	 * @apiParam {String} fieldValues 字段数据.
+	 * @apiParam {String} fieldValues 字段数据. 例{"tableName":test,"itcode":fannl,"fieldNames":we,qwe,qqq,"fieldValues":1,1,'123'}
 	 * 字段名
 	 *
 	 * @apiSuccess {Boolean} success  是否插入数据成功，false未成功，可能原因：所填数据格式与相应字段格式不符.
@@ -267,19 +267,21 @@ public class TableController {
 		String time1 = sdf.format(time);
 		System.out.println("INSERT INTO add_data_detail (tableName,itcode,data,time) VALUES ('"+tableName+"','"+itcode+"',\""+data+"\",'"+time1+"')");
 		jdbc.execute("INSERT INTO add_data_detail (tableName,itcode,data,time) VALUES ('"+tableName+"','"+itcode+"',\""+data+"\",'"+time1+"')");
-		System.out.println(time);
-		System.out.println("SELECT id FROM add_data_detail WHERE time = '"+time1+"'");
-		List<Map<String,Object>> list = jdbc.queryForList("SELECT id FROM add_data_detail WHERE time = '"+time1+"'");
-		int id = 0;
-		for (Map<String, Object> map2 : list) {
-			id = (int) map2.get("id");
-			System.out.println(id);
-		}
-		String url = TConfigUtils.selectValueByKey("kafka_address")+"/tableKafka/addData";
-		System.out.println(url);
-		String postParam = "itcode="+itcode+"&tableName="+tableName+"&DataId = "+id;
-		System.out.println(postParam);
-		HttpRequest.sendPost(url, postParam);
+//		System.out.println(time);
+//		System.out.println("SELECT id FROM add_data_detail WHERE time = '"+time1+"'");
+//		List<Map<String,Object>> list = jdbc.queryForList("SELECT id FROM add_data_detail WHERE time = '"+time1+"'");
+//		int id = 0;
+//		for (Map<String, Object> map2 : list) {
+//			id = (int) map2.get("id");
+//			System.out.println(id);
+//		}
+		
+//		想表中添加数据后发送信息到kafka对用户进行SZB奖励
+//		String url = TConfigUtils.selectValueByKey("kafka_address")+"/tableKafka/addData";
+//		System.out.println(url);
+//		String postParam = "itcode="+itcode+"&tableName="+tableName+"&DataId = "+id;
+//		System.out.println(postParam);
+//		HttpRequest.sendPost(url, postParam);
 		return map;
 	}
 	
@@ -293,7 +295,8 @@ public class TableController {
 	 * @apiGroup TiDBGroupCreate
 	 *
 	 * @apiParam {String} itcode 用户的itcode.
-	 * @apiParam {MultipartFile} file 上传的Excel文件.
+	 * @apiParam {MultipartFile} file 上传的Excel文件.文件名不能以数字开头。上传文件内容格式必须为第一行为表字段，其他行是相应字段数据
+	 * @apiParam file文件例 文件名：学生.xls    第一行：姓名 年龄 班级 。。。  第二行：杜伟 21 应数151 。。。 第三行。。。
 
 	 *
 	 * @apiSuccess {Boolean} success  是否上传成功，false未成功，可能原因：文件名以数字开头（数据库不支持表名为数字开头）；所传文件格式不正确（非Excel表形式）.

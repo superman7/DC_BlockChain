@@ -116,6 +116,7 @@
     			}
             	fieldNames = fieldNames.substr(0,fieldNames.length-1);
             	fieldValues = fieldValues.substr(0,fieldValues.length-1);
+            	console.log('{"tableName":'+tableName+',"itcode":'+itcode+',"fieldNames":'+fieldNames+',"fieldValues":'+fieldValues+'}');
             	$.ajax({
             		type:"GET",
             		url:baseUrl+"table/addDataToTable",
@@ -123,11 +124,14 @@
             			"tableName":tableName,
             			"itcode":itcode,
             			"fieldNames":fieldNames,
-            			"fieldValues":fieldValues,
+            			"fieldValues":fieldValues
             		},
             		dataType:"json",
             		success:function(data){
-            			alert(data.success);
+            			if(data.success){
+            				alert("添加成功");
+            				window.location.href = "/table/tableList.jsp";
+            			}
             		}
             	});
             }

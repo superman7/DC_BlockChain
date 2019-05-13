@@ -49,8 +49,13 @@ import com.digitalchina.xa.it.util.GetPersonalDBPwdUtils;
 import com.digitalchina.xa.it.util.HttpRequest;
 import com.digitalchina.xa.it.util.ResultUtil;
 import com.digitalchina.xa.it.util.TConfigUtils;
+import com.digitalchina.xa.it.weibo.weibo4j.Timeline;
+import com.digitalchina.xa.it.weibo.weibo4j.model.Status;
+import com.digitalchina.xa.it.weibo.weibo4j.model.StatusWapper;
+import com.digitalchina.xa.it.weibo.weibo4j.model.WeiboException;
 
 import scala.util.Random;
+
 
 
 @RunWith(SpringRunner.class)
@@ -73,12 +78,12 @@ public class Test {
 //	private static String[] ip = {"http://10.7.10.124:8545","http://10.7.10.125:8545","http://10.0.5.217:8545","http://10.0.5.218:8545","http://10.0.5.219:8545"};
 //	@Autowired
 //	private Single_double_games_lottery_infoDao single_double_games_lottery_infoDao;
-	@org.junit.Test
-	public void insertNewBlock1() throws IOException{
-		EthAccountDomain ethAccountDomain = ethAccountService.selectDefaultEthAccount("duwei");
-		System.out.println(ethAccountDomain.getAccount());
-		
-	}
+//	@org.junit.Test
+//	public void insertNewBlock1() throws IOException{
+//		EthAccountDomain ethAccountDomain = ethAccountService.selectDefaultEthAccount("duwei");
+//		System.out.println(ethAccountDomain.getAccount());
+//		
+//	}
 ////		String param = "5F0169EFE1C71DAE1915E9FFAF1BC9A8DC735381E0C57BBAC7C0DFF2D84998341F810DAA0B13738041E32ED5994AC176689E6333D36634C0DF22892073B268930B3F5DD1A91533C6E3A6041C05F58E0D477BA72DFFD83A62D6E7940CA8DA8E6DF0418DE6EF3BF0F542B968FC6CB57E51AD0C3E732995CCEF5B8736F5C889F1DE651D3F93FB0518F6";
 ////		gameController.insertGameDetails(param);
 ////		Web3j web3j = Web3j.build(new HttpService(ip[new Random().nextInt(5)]));
@@ -159,10 +164,17 @@ public class Test {
 //	}
 	@org.junit.Test
 	public void insertNewBlock() throws IOException, ClassNotFoundException, SQLException {
-		String pwd = GetPersonalDBPwdUtils.findPersonalDBPwd("fannl");
-		System.out.println(pwd);
-		EthAccountDomain account = ethAccountService.selectDefaultEthAccount("duwei");
-		System.out.println(account.getAccount());
+		String token = "2.00D5amKDKJkQfE8a57353facqDv5UD";
+		Timeline tm = new Timeline(token);
+		try {
+			StatusWapper status = tm.getUserTimeline();
+			List<Status> statuses = status.getStatuses();
+			for (Status status2 : statuses) {
+				System.out.println(status2.getId()+"1111111");
+			}
+		} catch (WeiboException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
