@@ -83,6 +83,9 @@
             		for(var i = 0;i<list.length;i++){
             			tableName = list[i].table_name;
             			listHtml +="<li class='aui-list-item' onclick='addData(\""+tableName+"\")'><div class='aui-list-item-inner'><div class='aui-list-item-label'>表名</div><div class='aui-list-item-input' >"+tableName+"</div></div></li>";
+            			if(i == list.length-1){
+            			listHtml +="<li class='aui-list-item' onclick='addData(\""+tableName+"\")'><div class='aui-list-item-inner'><div class='aui-list-item-label'>表名</div><div class='aui-list-item-input' >"+tableName+"</div></div></li>";            				
+            			}
             		}
             		$("#form2").append(listHtml);
             	}
@@ -282,6 +285,7 @@
      <div class="aui-content aui-margin-b-15">
 		<div class="aui-btn aui-btn-primary aui-btn-block aui-btn-outlined" onClick="addField()">添加字段</div>
 		<div class="aui-btn aui-btn-primary aui-btn-block aui-btn-outlined" onClick="commit()">提交</div>
+    	<div class="aui-btn-block"></div>
 
      </div>
 
