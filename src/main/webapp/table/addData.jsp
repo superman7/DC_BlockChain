@@ -102,6 +102,7 @@
     					}
     				}
     				if(fieldType == "varchar(20)"){
+    					fieldValue = fieldValue.replace("'","''");
     					if(fieldValue.length<=0||fieldValue.length>20){
     						alert("输入值不合法");
     						return;
@@ -109,6 +110,9 @@
     					fieldValue = "'"+fieldValue+"'";
     				}
     				if(fieldType == "varchar(255)"){
+    					alert(fieldValue);
+    					fieldValue = fieldValue.replace("'","''");
+    					alert(fieldValue);
     					fieldValue = "'"+fieldValue+"'";    					
     				}
     				fieldNames += fieldName+",";
