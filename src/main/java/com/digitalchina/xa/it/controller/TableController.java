@@ -8,15 +8,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
@@ -389,15 +392,19 @@ public class TableController {
 					System.out.println(sql);
 					JDBCUtils.executeSQL(sql, itcode, GetPersonalDBPwdUtils.findPersonalDBPwd(itcode));
 					System.out.println("将操作记录记录至建表信息表中"+"INSERT INTO table_info (itcode,table_name,table_status,fields,create_time)"
-							+ "VALUES('"+itcode+"','"+filename+"',"+0+",'"+fieldNames.substring(0, fieldNames.length()-1)+new Timestamp(new Date().getTime())+"')");
-					jdbc.execute("INSERT INTO table_info (itcode,table_name,table_status,fields)"
-							+ "VALUES('"+itcode+"','"+filename+"',"+0+",'"+fieldNames.substring(0, fieldNames.length()-1)+"')");
+							+ "VALUES('"+itcode+"','"+filename+"',"+0+",'"+fieldNames.substring(0, fieldNames.length()-1)+"','"+new Timestamp(new Date().getTime())+"')");
+					jdbc.execute("INSERT INTO table_info (itcode,table_name,table_status,fields,create_time) VALUES ('"+itcode+"','"+filename+"',"+0+",'"+fieldNames.substring(0, fieldNames.length()-1)+"','"+new Timestamp(new Date().getTime())+"')");
 				}
 			} else {
+					
 				fieldValues = "";
+				String string;
 				for (int j = 0; j <= lastCellNum; j++) {
-					if (!(row.getCell(j) == null)) {
-						fieldValues += "'"+row.getCell(j) + "',";
+					if (!(row.getCell(j)==null)) {
+					//校验单元格内是否为数字类型
+					string = numOfImport(row.getCell(j));
+					System.out.println(string);
+					fieldValues += "'"+string + "',";
 					}
 				}
 				//每次插入一行值
@@ -422,6 +429,28 @@ public class TableController {
 		map.put("msg", "导入成功");
 		return map;
 	}
+	/**
+	 * 处理导入小数点
+	 */
+	public  static String  numOfImport(HSSFCell cell) {
+	    String value = cell.toString();
+	    System.out.println(value);
+	    int i = cell.getCellType();
+	    if (i == 1) {//字符串类型
+	        return value;
+	    } else {
+	    	if(cell.getCellType() == Cell.CELL_TYPE_NUMERIC){   //数字
+	    	    if(String.valueOf(cell.getNumericCellValue()).indexOf("E")==-1){
+	    	        return String.valueOf(cell.getNumericCellValue());
+	    	    }else {
+	    	        return new DecimalFormat("#").format(cell.getNumericCellValue());
+	    	    }
 
+	    	}
+	    }
+		return value;
+
+
+	}
 	
 }
