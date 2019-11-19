@@ -73,7 +73,7 @@
 								addCookie("username",username,2);
 								addCookie("u_pwd",u_pwd,2);
 								addCookie("itcode",result.data,2);
-								window.location.href = "/table/tableList.jsp";
+								window.location.href = "/wallet/amBase.jsp";
 							}else if(result.status==1){
 								$("#username_msg").html(result.msg);
 							}else if(result.status==2){
@@ -89,11 +89,22 @@
 			</script>
 </head>
 <body>
+<!-- 我修改添加部分  为login.jsp页面布局 增加样式-->
+<div id="main">
+		<div class="content">
 					 <h1 align="center"class=" aui-text-info">登录</h1>
-                    <form >
+                    <form>
+                 		<div class="user">
+                 		<label>账号：</label>
                         <input type="text" id="username" class="aui-input" placeholder="请输入账号"><span id="username_msg"></span>
+                        </div>
+                        <div class="password">
+                        <label>密码：</label>
                         <input type="text" id="u_pwd" class="aui-input" placeholder="请输入密码"><span id="pwd_msg"></span>
-                        <div align="center" ><button type="button" id="login_btn" class="aui-text-info " >登录</button></div>
+                        </div>
+                        <div align="center" class="login-btn"><button type="button" id="login_btn" class="aui-text-info " >登录</button></div>
                     </form>
+		</div>
+</div>
 </body>
 </html>

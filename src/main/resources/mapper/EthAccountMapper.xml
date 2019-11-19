@@ -97,12 +97,13 @@
 		INSERT INTO
 			<include refid="BASE_TABLE"/>
 			<trim prefix="(" suffix=")" suffixOverrides=",">
-				itcode,account,backup1,backup2
+				itcode,account
 			</trim>
 			<trim prefix="VALUES(" suffix=")" suffixOverrides=",">
-				#{itcode, jdbcType=VARCHAR},#{account, jdbcType=VARCHAR},#{backup1, jdbcType=VARCHAR},#{backup2, jdbcType=VARCHAR}
+				#{itcode, jdbcType=VARCHAR},#{account, jdbcType=VARCHAR}
 			</trim>
 	</insert>
+  
   
 	<update id="updateAccountBalance" parameterType="com.digitalchina.xa.it.model.EthAccountDomain">
 		UPDATE 

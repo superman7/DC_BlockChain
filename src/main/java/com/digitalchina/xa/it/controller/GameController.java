@@ -154,11 +154,9 @@ public class GameController {
 		 int id1 = Integer.parseInt(id); 
 		Map<String, Object> modelMap = new HashMap<String, Object>();		
 //		System.out.println(111);
-		System.out.println(itcode+id);
+//		System.out.println(itcode+id);
 		SingleDoubleGamesInfoDomain tpid = gameService.selectLotteryInfoById(id1);
 		List<SingleDoubleGamesDetailsDomain> tpddList = gameService.selectGameDetailsByItcodeAndLotteryId(itcode, id1);
-		
-		
 		modelMap.put("success", true);
 		modelMap.put("infoData", JSONObject.toJSON(tpid));
 		modelMap.put("detailData", JSONObject.toJSON(tpddList));

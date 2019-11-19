@@ -25,7 +25,7 @@ public class TConfigUtils {
 	
 	public static String selectIp() {
 		List<String> ipArr =  newtconfigService.selectIpArr();
-		return ipArr.get(new Random().nextInt(5));
+		return ipArr.get(new Random().nextInt(4));
 	}
 
 	public static List<String> selectIpArr() {

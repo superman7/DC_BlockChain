@@ -23,6 +23,8 @@
         <script type='text/javascript' src='../js/fastclick.min.js'></script>
         <script type='text/javascript' src='../js/web3.min.js'></script>
         <script type='text/javascript' src='../js/bignumber.js'></script>
+        <script type='text/javascript' 	rc='../js/check_login.js'></script>
+		<script type="text/javascript" src='../js/cookie_util.js'></script>
         <script type="text/javascript">
             $(function() {
                 var innerHtmlMain = "<div><p class='lead'>1、创建密语与密语密码，为您生成账户地址，日后可用密语来导入地址。服务器不会保存，请您妥善保管！</p><img src='../img/walletIntroduce_03.jpg' class='img-rounded img-responsive center-block' style='border: groove;'></div><br>"

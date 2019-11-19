@@ -152,11 +152,15 @@
         window.upload = function(){
         	showDefault("loading");
         	var formData = new FormData();
-        	formData.append("itcode",itcode);
         	formData.append("file",document.getElementById("file").files[0]);
+        	formData.append("title",itcode);
+        	formData.append("description","111111");
+        	formData.append("price","100");
+        	formData.append("address","陕西省西安市");
+        	formData.append("days","10");
         	$.ajax({
                 type: "post",
-                url: baseUrl + "table/uploadFile",
+                url: baseUrl + "entityLottery/insertLotteryInfo",
                 data: formData,
                 contentType: false,
                 processData: false,
