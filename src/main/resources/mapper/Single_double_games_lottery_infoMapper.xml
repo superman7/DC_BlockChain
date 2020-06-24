@@ -66,6 +66,8 @@
 			<include refid="BASE_TABLE"/>
 		WHERE
 			flag = 0
+		AND
+			backup4 = 0
 		
 	</select>
 	

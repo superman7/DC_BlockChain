@@ -106,27 +106,77 @@ public class EthAccountController {
 		Double money = (Double.parseDouble(withdrawJson.getString("money")))*10000000000000000L;
 		BigDecimal moneyBigDecimal = new BigDecimal(money);// 转账金额
 		
-		//记录提现交易信息
-		WalletTransactionDomain wtd = new WalletTransactionDomain();
-		wtd.setItcode(itcode);
-		wtd.setAccountFrom(defaultAcc);
-		wtd.setAccountTo(account);
-		wtd.setAliasFrom("默认账户");
-		wtd.setAliasTo(alias);
-		wtd.setBalance(money);
-		String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-		wtd.setConfirmTime(date);
-		Integer transactionDetailId = walletTransactionService.insertBaseInfo(wtd);
 		
-		//向system_transactiondetail表记录信息 
-		SystemTransactionDetailDomain stdd = new SystemTransactionDetailDomain(defaultAcc, account, money/10000000000000000L, null, date, 0, "remark", itcode, itcode, "", 0, "", transactionDetailId);
-		systemTransactionDetailDAO.insertBaseInfo(stdd);
 		
-		//向kafka发送交易请求，参数为：account，itcode，金额，transactionDetailId
-		String url = TConfigUtils.selectValueByKey("kafka_address") + "/ethAccount/withdrawConfirm";
-		String postParam = "itcode=" + itcode + "account" + account + "&transactionDetailId=" + transactionDetailId + "&turnBalance=" + moneyBigDecimal;
-		HttpRequest.sendPost(url, postParam);
 		
+//		//向kafka发送交易请求，参数为：account，itcode，金额，transactionDetailId
+//		String url = TConfigUtils.selectValueByKey("kafka_address") + "/ethAccount/withdrawConfirm";
+//        String postParam = "itcode=" + itcode + "&account=" + account + "&transactionDetailId=" + transactionDetailId + "&turnBalance=" + moneyBigDecimal;
+//        HttpRequest.sendPost(url, postParam);
+        
+		EthAccountDomain ethAccountDomain = new EthAccountDomain();
+		ethAccountDomain.setAccount(defaultAcc);
+		String keystore = ethAccountService.selectKeystoreByAccount(ethAccountDomain);
+        try {
+			List<Web3j> web3jList = new ArrayList<>();
+			List<String> ipArr = TConfigUtils.selectIpArr();
+			for(int i = 0; i < ipArr.size(); i++) {
+				web3jList.add(Web3j.build(new HttpService(ipArr.get(i))));
+			}
+			File keystoreFile = keystoreToFile(keystore, defaultAcc + ".json");
+			System.out.println("开始解锁。。。");
+			Credentials credentials = WalletUtils.loadCredentials(TConfigUtils.selectValueByKey("default_password"), keystoreFile);
+			System.out.println("解锁成功。。。");
+			keystoreFile.delete();
+			System.out.println("删除临时keystore文件成功。。。");
+			
+			EthGetTransactionCount ethGetTransactionCount = web3jList.get(new Random().nextInt(4)).ethGetTransactionCount(defaultAcc, DefaultBlockParameterName.LATEST).sendAsync().get();
+			BigInteger nonce = ethGetTransactionCount.getTransactionCount();
+			System.err.println("nonce:" + nonce);
+			RawTransaction rawTransaction = RawTransaction.createEtherTransaction(nonce, BigInteger.valueOf(2200000000L), BigInteger.valueOf(2100000L), account, moneyBigDecimal.toBigInteger());
+			//签名Transaction，这里要对交易做签名
+			byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
+			String hexValue = Numeric.toHexString(signedMessage);
+			System.err.println("hexValue:" + hexValue);
+			//发送交易
+			String transactionHash = "";
+			String realTransactionHash = "";
+			System.out.println(web3jList.size());
+			for(int i = 0; i < web3jList.size(); i++) {
+				transactionHash = web3jList.get(i).ethSendRawTransaction(hexValue).sendAsync().get().getTransactionHash();
+				System.out.println(transactionHash);
+				if(transactionHash != null) {
+					realTransactionHash = transactionHash;
+				}
+			}
+			//记录提现交易信息
+			WalletTransactionDomain wtd = new WalletTransactionDomain();
+			wtd.setItcode(itcode);
+			wtd.setAccountFrom(defaultAcc);
+			wtd.setAccountTo(account);
+			wtd.setAliasFrom("默认账户");
+			wtd.setAliasTo(alias);
+			wtd.setBalance(money);
+			wtd.setTransactionHash(realTransactionHash);
+			String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+			wtd.setConfirmTime(date);
+			Integer transactionDetailId = walletTransactionService.insertBaseInfo(wtd);
+			
+			modelMap.put("success", true);
+			modelMap.put("transactionHash", transactionHash);
+		} catch (Exception e) {
+			System.out.println("解锁失败。。。");
+			e.printStackTrace();
+			if(e.getMessage().contains("Invalid password provided")) {
+				modelMap.put("success", false);
+				modelMap.put("errMsg", "invalidPassword");
+				return modelMap;
+			}
+		}
+        
+        
+        
+        
 		return modelMap;
 	}
 	@ResponseBody
@@ -151,7 +201,6 @@ public class EthAccountController {
 		String mnemonicSentence = mnemonicService.chooseMnemonic();
 		modelMap.put("success", true);
 		modelMap.put("mnemonic", mnemonicSentence);
-		
 		return modelMap;
 	}
 	
@@ -415,7 +464,7 @@ public class EthAccountController {
 			keystoreFile.delete();
 			System.out.println("删除临时keystore文件成功。。。");
 			
-			EthGetTransactionCount ethGetTransactionCount = web3jList.get(new Random().nextInt(5)).ethGetTransactionCount(account, DefaultBlockParameterName.LATEST).sendAsync().get();
+			EthGetTransactionCount ethGetTransactionCount = web3jList.get(new Random().nextInt(4)).ethGetTransactionCount(account, DefaultBlockParameterName.LATEST).sendAsync().get();
 			BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 			System.err.println("nonce:" + nonce);
 			RawTransaction rawTransaction = RawTransaction.createEtherTransaction(nonce, BigInteger.valueOf(2200000000L), BigInteger.valueOf(2100000L), defaultAcc, moneyBigDecimal.toBigInteger());
@@ -550,7 +599,7 @@ public class EthAccountController {
 			keystoreFile.delete();
 			System.out.println("删除临时keystore文件成功。。。");
 			
-			BigInteger accountBalance = web3jList.get(new Random().nextInt(5)).ethGetBalance(account,DefaultBlockParameterName.LATEST).send().getBalance();
+			BigInteger accountBalance = web3jList.get(new Random().nextInt(4)).ethGetBalance(account,DefaultBlockParameterName.LATEST).send().getBalance();
 			accountBalance = accountBalance.subtract(tax);
 			Double money = Double.parseDouble(accountBalance.toString());
 			if(money < 1000000000000000L) {

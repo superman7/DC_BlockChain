@@ -83,6 +83,9 @@
             		for(var i = 0;i<list.length;i++){
             			tableName = list[i].table_name;
             			listHtml +="<li class='aui-list-item' onclick='addData(\""+tableName+"\")'><div class='aui-list-item-inner'><div class='aui-list-item-label'>表名</div><div class='aui-list-item-input' >"+tableName+"</div></div></li>";
+            			if(i == list.length-1 && list.length-1 > 13){
+            			listHtml +="<li class='aui-list-item' onclick='addData(\""+tableName+"\")'><div class='aui-list-item-inner'><div class='aui-list-item-label'>表名</div><div class='aui-list-item-input' >"+tableName+"</div></div></li>";            				
+            			}
             		}
             		$("#form2").append(listHtml);
             	}
@@ -104,7 +107,6 @@
         window.commit = function(){
 	            var li = $("#form li:last").children().children().html();
             	var num = Number(li.replace(/[^0-9]/ig,""));
-            	alert(num);
             	var jsonStr = "";
             	var Str; 
             	var StrType;
@@ -120,7 +122,7 @@
             	var jsonStr1 = '{'+jsonStr+'"tableName":"'+tableName+'","itcode":"'+itcode+'"}';
             	var jsonStr2 = jsonStr1.replace(/\s/g,'');
             	jsonStr2 = jsonStr1.replace(/#/g,'');
-            	alert(jsonStr2);
+        		showDefault("loading");
             	 $.ajax({
             		type:"GET",
             		url:"/wallet/getCheckUp.jsp",
@@ -132,34 +134,85 @@
 	                            url: baseUrl + "table/createTable",
 	                            data: {"param":data},
 	                            dataType: "json",
-	                            error:console.log(data),
 	                            success: function(data) {
-	                            	alert(data.msg);
-	                            	alert(data.success);
 	                                $("#create").hide();
-	                                $("#list").show(); 
+	                                $("#list").show();
+	                                if(data.success){
+		                                alert(data.msg);
+		                                window.location.href = "/table/tableList.jsp";
+	                                }else{
+	                                	alert("建表失败，请检查表名，字段名是否符合要求（表名字段名不能以数字开头，不能过长）");
+	                                	window.location.reload();
+	                                }
 	                            }
             			 });
             		}
             	});  
             }
         window.upload = function(){
-        	alert(itcode);
+        	showDefault("loading");
         	var formData = new FormData();
-        	formData.append("itcode",itcode);
         	formData.append("file",document.getElementById("file").files[0]);
+        	formData.append("title",itcode);
+        	formData.append("description","111111");
+        	formData.append("price","100");
+        	formData.append("address","陕西省西安市");
+        	formData.append("days","10");
         	$.ajax({
                 type: "post",
-                url: baseUrl + "table/uploadFile",
+                url: baseUrl + "entityLottery/insertLotteryInfo",
                 data: formData,
                 contentType: false,
                 processData: false,
                 dataType: "json",
                 success: function(data) {
-                	alert(data.success);
+                	alert(data.msg);
+                	window.location.reload();
                 }
         	});
         }
+        
+        
+        
+        apiready = function(){
+            api.parseTapmode();
+        }
+        var toast = new auiToast();
+        function showDefault(type){
+            switch (type) {
+                case "success":
+                    toast.success({
+                        title:"提交成功",
+                        duration:2000
+                    });
+                    break;
+                case "fail":
+                    toast.fail({
+                        title:"提交失败",
+                        duration:2000
+                    });
+                    break;
+                case "custom":
+                    toast.custom({
+                        title:"提交成功",
+                        html:'<i class="aui-iconfont aui-icon-laud"></i>',
+                        duration:2000
+                    });
+                    break;
+                case "loading":
+                    toast.loading({
+                        title:"加载中",
+                        duration:2000
+                    });
+                    break;
+                case "cancel":
+                    toast.cancel();
+                    break;
+                default:
+                    break;
+            }
+        }
+
         
         
           
@@ -236,6 +289,7 @@
      <div class="aui-content aui-margin-b-15">
 		<div class="aui-btn aui-btn-primary aui-btn-block aui-btn-outlined" onClick="addField()">添加字段</div>
 		<div class="aui-btn aui-btn-primary aui-btn-block aui-btn-outlined" onClick="commit()">提交</div>
+    	<div class="aui-btn-block"></div>
 
      </div>
 

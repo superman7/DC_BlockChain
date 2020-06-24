@@ -34,7 +34,7 @@
         <script type='text/javascript' src='../js/fastclick.min.js'></script>
         <script type='text/javascript' src='../js/web3.min.js'></script>
         <script type='text/javascript' src='../js/bignumber.js'></script>
-		<script type='text/javascript' src='../js/check_login.js'></script>
+        <script type='text/javascript' 	rc='../js/check_login.js'></script>
 		<script type="text/javascript" src='../js/cookie_util.js'></script>
         <script type="text/javascript">
         	<%-- var itcode = '<%=it_code1 %>'; --%>

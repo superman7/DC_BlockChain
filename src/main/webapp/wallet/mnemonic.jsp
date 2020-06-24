@@ -94,6 +94,7 @@
                                 window.location.href="/wallet/newAccount.jsp"
                                      +"?mnemonic=" + mnemonic +"&"+"address=" + address + "&mnePassword=" + mnePassword + "&itcode=" + itcode;
                             } else {
+                            	alert(data.errMsg);
                                 alert("您的账户数量与今日注册次数已累计达到10次，请明日再试！");
                                 window.location.href = "/wallet/amBase.jsp";
                             }

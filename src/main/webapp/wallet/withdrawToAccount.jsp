@@ -145,7 +145,7 @@
 		                                return;
 		                            }
 		                            alert("提现成功，请稍后在我的账户查看");
-		                            window.location.href = "wallet/accManager.jsp";
+		                            window.location.href = "/wallet/amBase.jsp";
 		                        }
 		                    });
                         }

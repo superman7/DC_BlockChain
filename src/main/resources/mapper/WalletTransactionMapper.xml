@@ -26,8 +26,11 @@
 		WHERE
 			itcode = #{itcode}
 	</select>
-	
+
 	<insert id="insertBaseInfo" parameterType="com.digitalchina.xa.it.model.WalletTransactionDomain">
+		<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+            select @@IDENTITY as id
+        </selectKey>
 		INSERT INTO
 			<include refid="BASE_TABLE"/>
 			<trim prefix="(" suffix=")" suffixOverrides=",">

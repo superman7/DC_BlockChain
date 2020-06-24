@@ -169,7 +169,6 @@ public class GameServiceimpl implements GameService{
 		//计算ticket值,更新该用户的ticket值。
 		String ticket = tpdd.getBackup5().toString();
 		single_double_games_detailsDao.updateTicket(ticket, transactionId);			
-		
 		return true;
 	}
 }

@@ -54,7 +54,9 @@
         	$.ajax({
         		type:"GET",
         		url:"/table/getOne",
-        		data:{"tableName":tableName},
+        		data:{"tableName":tableName,
+        			"itcode":itcode	
+        		},
         		dataType:"json",
         		success:function(data){
         			var list = data.list;
@@ -100,6 +102,7 @@
     					}
     				}
     				if(fieldType == "varchar(20)"){
+    					fieldValue = fieldValue.replace("'","''");
     					if(fieldValue.length<=0||fieldValue.length>20){
     						alert("输入值不合法");
     						return;
@@ -107,6 +110,9 @@
     					fieldValue = "'"+fieldValue+"'";
     				}
     				if(fieldType == "varchar(255)"){
+    					alert(fieldValue);
+    					fieldValue = fieldValue.replace("'","''");
+    					alert(fieldValue);
     					fieldValue = "'"+fieldValue+"'";    					
     				}
     				fieldNames += fieldName+",";
@@ -114,6 +120,7 @@
     			}
             	fieldNames = fieldNames.substr(0,fieldNames.length-1);
             	fieldValues = fieldValues.substr(0,fieldValues.length-1);
+            	console.log('{"tableName":'+tableName+',"itcode":'+itcode+',"fieldNames":'+fieldNames+',"fieldValues":'+fieldValues+'}');
             	$.ajax({
             		type:"GET",
             		url:baseUrl+"table/addDataToTable",
@@ -121,11 +128,14 @@
             			"tableName":tableName,
             			"itcode":itcode,
             			"fieldNames":fieldNames,
-            			"fieldValues":fieldValues,
+            			"fieldValues":fieldValues
             		},
             		dataType:"json",
             		success:function(data){
-            			alert(data.success);
+            			if(data.success){
+            				alert("添加成功");
+            				window.location.href = "/table/tableList.jsp";
+            			}
             		}
             	});
             }
